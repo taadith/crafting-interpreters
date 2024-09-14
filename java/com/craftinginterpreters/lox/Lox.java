@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Lox {
-
+    static boolean hadError = false;
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
@@ -18,18 +18,20 @@ public class Lox {
             // command used incorrectly (UNIX "sysexits.h" header)
             System.exit(64);
         }
-        else if (args.length == 1) {
+        else if (args.length == 1)
             runFile(args[0]);
-        }
-        else {
+        else
             runPrompt();
-        }
     }
 
     // reads file and executes
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
+
+        // input data is incorrect (UNIX "sysexits.h" header)
+        if (hadError)
+            System.exit(65);
     }
 
     // fires up an interactive prompt or REPL (read, eval, print, loop)
@@ -40,10 +42,18 @@ public class Lox {
 
         for(;;) {
             System.out.print("> ");
+
+            // killing an interactice command-line app w/ Ctrl-D...
+            // ... signalling an EOF condition to the program, ...
+            // ... subsequently, readLine() returns null
             String line = reader.readLine();
             if(line == null)
                 break;
             run(line);
+
+            // resetting flag in interactive loop
+            // just report the error, don't stop REPL
+            hadError = false;
         }
     }
 
@@ -57,5 +67,13 @@ public class Lox {
             System.out.println(token);
     }
 
+    static void error(int line, String msg) {
+        report(line, "", msg);
+    }
 
+    private static void report(int line, String where, String msg) {
+        System.err.println("[line " + line + "] Error" +
+            where + ": " + msg);
+        hadError = true;
+    }
 }
