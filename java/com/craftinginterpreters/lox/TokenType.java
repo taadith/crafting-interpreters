@@ -7,7 +7,7 @@ enum TokenType {
     COMMA, DOT, SEMICOLON,
     MINUS, PLUS, SLASH, STAR,
 
-    // one/two character tokens
+    // one or two character tokens
     BANG, BANG_EQUAL,
     EQUAL, EQUAL_EQUAL,
     GREATER, GREATER_EQUAL,
