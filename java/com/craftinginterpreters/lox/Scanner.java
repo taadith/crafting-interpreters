@@ -58,6 +58,12 @@ class Scanner {
                 addToken(TokenType.SEMICOLON);
             case '*':
                 addToken(TokenType.STAR);
+
+            // one or two character tokens
+            
+            default:
+                Lox.error(line, "unexpected character");
+                break;
         }
     }
 
