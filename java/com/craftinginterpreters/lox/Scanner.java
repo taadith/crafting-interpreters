@@ -10,6 +10,13 @@ import java.com.craftinginterpreters.lox.TokenType;
 class Scanner {
     private final String src;
     private final List<Token> tokens = new ArrayList<>();
+
+    private static final Map<String, TokenType> keywords;
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and",     TokenType.AND);
+    }
+    
     private int start = 0;
     private int current = 0;
     private int line = 1;
