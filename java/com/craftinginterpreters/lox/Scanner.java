@@ -99,12 +99,15 @@ class Scanner {
             default:
                 if (isDigit(c))
                     number();
+                else if(isAlpha(c))
+                    identifier();
                 else
                     Lox.error(line, "unexpected character");
                 break;
         }
     }
-
+    
+    // string() -> '"' * '"'
     private void string() {
         // consume chars until second '"'...
         // ...or we've hit the end
@@ -129,12 +132,13 @@ class Scanner {
         addToken(TokenType.STRING, value);
     }
 
+    // number() -> (0..9)* ('.'(0..9)*)?
     private void number() {
         // so long as the next char is a digit, "advance"
         while(isDigit(peek()))
             advance();
         
-        // look for mantissa
+        // looking for decimal pt and mantissa
         if (peek() == '.' && isDigit(peekNext())) {
             // consume '.'
             advance();
@@ -145,6 +149,13 @@ class Scanner {
 
         addToken(TokenType.NUMBER,
             Double.parseDouble(src.substring(start, current)));
+    }
+
+    private void identifier() {
+        while(isAlphaNumeric(peek()))
+            advance();
+        
+        addToken(TokenType.IDENTIFIER);
     }
 
     private boolean isAtEnd() {
@@ -194,5 +205,15 @@ class Scanner {
 
     private boolean isDigit(char c) {
         return c >= '0' && c <= '9';
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+               c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 }

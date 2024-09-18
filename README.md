@@ -17,7 +17,5 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *ii.* started **Longer Lexemes**
 4. updates for 9/18\
     *i.* continuing **Longer Lexemes**\
-    *ii.* started **Longer Lexemes** -> 
-    ***String literals***,***Number literals***\
-    *ii.* finished **Longer Lexemes** -> 
-    ***String literals***
+    *ii.* started **Reserved Words and Identifiers**
+    *ii.* finished **Longer Lexemes**
