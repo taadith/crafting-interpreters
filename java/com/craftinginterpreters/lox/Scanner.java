@@ -72,6 +72,25 @@ class Scanner {
             case '>':
                 addToken(match('>') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
+            case '/':
+                // comment goes to EOL
+                if (match('/')) {
+                    while (peek() != '\n' && !isAtEnd())
+                        advance();
+                }
+                else
+                    addToken(TokenType.SLASH);
+                    break;
+            
+            // ignore whitespace
+            case ' ':
+            case '\r':  // carriage return
+            case '\t':
+                break;
+            
+            case '\n':
+                line++;
+                break;
             
             default:
                 Lox.error(line, "unexpected character");
@@ -99,6 +118,7 @@ class Scanner {
     }
 
     // "conditional advance" - only consume char if it is "expected"
+    // one char of lookahead
     private boolean match(char expected) {
         if (isAtEnd())
             return false;
@@ -107,5 +127,13 @@ class Scanner {
 
         current++;
         return true;
+    }
+
+    // similar to advance() w/out consuming the char
+    // basically, one char of lookahead
+    private char peek() {
+        if (isAtEnd())
+            return '\0';
+        return src.charAt(current);
     }
 }
