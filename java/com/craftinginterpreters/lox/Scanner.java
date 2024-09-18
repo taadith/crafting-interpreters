@@ -98,6 +98,7 @@ class Scanner {
         tokens.add(new Token(type, txt, literal, line));
     }
 
+    // "conditional advance" - only consume char if it is "expected"
     private boolean match(char expected) {
         if (isAtEnd())
             return false;

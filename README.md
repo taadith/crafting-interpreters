@@ -13,4 +13,5 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *i.* finished **Lexemes and Tokens**, **The Scanner Class**\
     *ii.* started **Recognizing Lexemes**
 3. updates for 9/17\
-    *i.* continuing **Recognizing Lexemes** -> ***Operators***
+    *i.* finished **Recognizing Lexemes** -> ***Operators***\
+    *ii.* started **Longer Lexemes**
