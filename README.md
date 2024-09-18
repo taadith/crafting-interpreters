@@ -15,3 +15,7 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
 3. updates for 9/17\
     *i.* finished **Recognizing Lexemes** -> ***Operators***\
     *ii.* started **Longer Lexemes**
+4. updates for 9/18\
+    *i.* continuing **Longer Lexemes**\
+    *ii.* started **Longer Lexemes** -> 
+    ***String literals***

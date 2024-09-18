@@ -92,6 +92,10 @@ class Scanner {
                 line++;
                 break;
             
+            case '"':
+                string();
+                break;
+            
             default:
                 Lox.error(line, "unexpected character");
                 break;
@@ -135,5 +139,29 @@ class Scanner {
         if (isAtEnd())
             return '\0';
         return src.charAt(current);
+    }
+
+    private void string() {
+        // consume chars until second '"'...
+        // ...or we've hit the end
+        while(peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n')
+                line++;
+            advance();
+        }
+
+        // if we hit the end, we never reached...
+        // ...the end of the string
+        if (isAtEnd()) {
+            Lox.error(line, "unterminated string");
+            return;
+        }
+        
+        // the closing '"'
+        advance();
+
+        // trim the surrouding quotes
+        String value = src.substring(start + 1, current - 1);
+        addToken(TokenType.STRING, value);
     }
 }
