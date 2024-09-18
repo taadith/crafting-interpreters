@@ -18,4 +18,6 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
 4. updates for 9/18\
     *i.* continuing **Longer Lexemes**\
     *ii.* started **Longer Lexemes** -> 
+    ***String literals***,***Number literals***\
+    *ii.* finished **Longer Lexemes** -> 
     ***String literals***

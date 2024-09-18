@@ -97,9 +97,54 @@ class Scanner {
                 break;
             
             default:
-                Lox.error(line, "unexpected character");
+                if (isDigit(c))
+                    number();
+                else
+                    Lox.error(line, "unexpected character");
                 break;
         }
+    }
+
+    private void string() {
+        // consume chars until second '"'...
+        // ...or we've hit the end
+        while(peek() != '"' && !isAtEnd()) {
+            if (peek() == '\n')
+                line++;
+            advance();
+        }
+
+        // if we hit the end, we never reached...
+        // ...the end of the string
+        if (isAtEnd()) {
+            Lox.error(line, "unterminated string");
+            return;
+        }
+        
+        // the closing '"'
+        advance();
+
+        // trim the surrouding quotes
+        String value = src.substring(start + 1, current - 1);
+        addToken(TokenType.STRING, value);
+    }
+
+    private void number() {
+        // so long as the next char is a digit, "advance"
+        while(isDigit(peek()))
+            advance();
+        
+        // look for mantissa
+        if (peek() == '.' && isDigit(peekNext())) {
+            // consume '.'
+            advance();
+
+            while(isDigit(peek()))
+                advance();
+        }
+
+        addToken(TokenType.NUMBER,
+            Double.parseDouble(src.substring(start, current)));
     }
 
     private boolean isAtEnd() {
@@ -141,27 +186,13 @@ class Scanner {
         return src.charAt(current);
     }
 
-    private void string() {
-        // consume chars until second '"'...
-        // ...or we've hit the end
-        while(peek() != '"' && !isAtEnd()) {
-            if (peek() == '\n')
-                line++;
-            advance();
-        }
+    private char peekNext() {
+        if (current + 1 >= src.length())
+            return '\0';
+        return src.charAt(current + 1);
+    }
 
-        // if we hit the end, we never reached...
-        // ...the end of the string
-        if (isAtEnd()) {
-            Lox.error(line, "unterminated string");
-            return;
-        }
-        
-        // the closing '"'
-        advance();
-
-        // trim the surrouding quotes
-        String value = src.substring(start + 1, current - 1);
-        addToken(TokenType.STRING, value);
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
     }
 }
