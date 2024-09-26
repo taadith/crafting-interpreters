@@ -1,8 +1,18 @@
-compile:
-	cd ./java && javac com/craftinginterpreters/lox/*.java
+LOX_DIR = com/craftinginterpreters/lox
+TOOL_DIR = com/craftinginterpreters/tool
 
-run:
+all: clean-lox compile run
+
+run: compile
 	cd ./java && java com.craftinginterpreters.lox.Lox
 
-clean:
-	rm java/com/craftinginterpreters/lox/*.class
+compile:
+	cd ./java && javac $(LOX_DIR)/*.java
+
+clean: clean-lox clean-tool
+
+clean-lox:
+	rm java/$(LOX_DIR)/*.class
+
+clean-tool:
+	rm java/$(TOOL_DIR)/*.class
