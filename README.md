@@ -19,3 +19,6 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *i.* continuing **Longer Lexemes**\
     *ii.* started **Reserved Words and Identifiers**
     *ii.* finished **Longer Lexemes**
+5. updates for 9/19\
+    *i.* finished ***Scanning*** chapter!\
+    *ii.* finished

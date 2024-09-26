@@ -1,20 +1,34 @@
-package java.com.craftinginterpreters.lox;
+package com.craftinginterpreters.lox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import java.com.craftinginterpreters.lox.TokenType;
-
 class Scanner {
     private final String src;
     private final List<Token> tokens = new ArrayList<>();
 
+    // reserved keywords
     private static final Map<String, TokenType> keywords;
     static {
         keywords = new HashMap<>();
         keywords.put("and",     TokenType.AND);
+        keywords.put("class",   TokenType.CLASS);
+        keywords.put("else",    TokenType.ELSE);
+        keywords.put("false",   TokenType.FALSE);
+        keywords.put("for",     TokenType.FOR);
+        keywords.put("fun",     TokenType.FUN);
+        keywords.put("if",      TokenType.IF);
+        keywords.put("nil",     TokenType.NIL);
+        keywords.put("or",      TokenType.OR);
+        keywords.put("print",   TokenType.PRINT);
+        keywords.put("return",  TokenType.RETURN);
+        keywords.put("super",   TokenType.SUPER);
+        keywords.put("this",    TokenType.THIS);
+        keywords.put("true",    TokenType.TRUE);
+        keywords.put("var",     TokenType.VAR);
+        keywords.put("while",   TokenType.WHILE);
     }
     
     private int start = 0;
@@ -162,7 +176,13 @@ class Scanner {
         while(isAlphaNumeric(peek()))
             advance();
         
-        addToken(TokenType.IDENTIFIER);
+        String txt = src.substring(start, current);
+        
+        // check for a match in hashmap
+        TokenType type = keywords.get(txt);
+        if (type == null)
+            type = TokenType.IDENTIFIER;
+        addToken(type);
     }
 
     private boolean isAtEnd() {
