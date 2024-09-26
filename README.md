@@ -21,4 +21,6 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *ii.* finished **Longer Lexemes**
 5. updates for 9/19\
     *i.* finished ***Scanning*** chapter!\
-    *ii.* finished
+6. updates for 9/26\
+    *i.* figured out Makefile for running commands pretty easily!\
+    *ii.* running locally now instead of thru VS Code!!! yippeeeee!!!
