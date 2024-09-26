@@ -6,6 +6,9 @@ all: clean-lox compile run
 run: compile
 	cd ./java && java com.craftinginterpreters.lox.Lox
 
+run-file: compile
+	cd ./java && java com.craftinginterpreters.lox.Lox file.lox
+
 compile:
 	cd ./java && javac $(LOX_DIR)/*.java
 
