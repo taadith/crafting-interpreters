@@ -99,6 +99,8 @@ class Scanner {
                     while (peek() != '\n' && !isAtEnd())
                         advance();
                 }
+                else if (match('*'))
+                    multiline_comment();
                 else
                     addToken(TokenType.SLASH);
                     break;
@@ -127,6 +129,26 @@ class Scanner {
                 break;
         }
     }
+
+    // multiline_comment() -> "/*" * "*/"
+    private void multiline_comment() {
+        while((peek() != '*' && peekNext() != '/') && !isAtEnd()) {
+            if (peek() == '\n')
+                line++;
+            advance();
+        }
+
+        // if we hit the end, we never reached...
+        // ... the end of the multiline comment
+        if (isAtEnd()) {
+            Lox.error(line, "unterminated multiline comment");
+            return;
+        }
+
+        // the closing characters: '*', '/'
+        advance();
+        advance();
+    }
     
     // string() -> '"' * '"'
     private void string() {
@@ -139,7 +161,7 @@ class Scanner {
         }
 
         // if we hit the end, we never reached...
-        // ...the end of the string
+        // ... the end of the string
         if (isAtEnd()) {
             Lox.error(line, "unterminated string");
             return;
