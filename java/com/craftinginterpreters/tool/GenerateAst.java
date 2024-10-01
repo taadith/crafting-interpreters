@@ -62,24 +62,24 @@ public class GenerateAst {
             PrintWriter writer, String baseName,
             String className, String fieldList) {
         
-        writer.println("\t static class " + className + " extends " +
+        writer.println("\n\tstatic class " + className + " extends " +
             baseName + " {");
         
         // constructor
-        writer.println("\t" + className + "(" + fieldList + ") {");
+        writer.println("\t\t" + className + "(" + fieldList + ") {");
 
         // store params in fields
         String[] fields = fieldList.split(", ");
         for(String field : fields) {
             String name = field.split(" ")[1];
-            writer.println("\t\tthis." + name + " = " + name + ";");
+            writer.println("\t\t\tthis." + name + " = " + name + ";");
         }
         writer.println("\t\t}");
 
         // fields
         writer.println();
         for (String field : fields)
-            writer.println("\tfinal " + field + ";");
+            writer.println("\t\tfinal " + field + ";");
         
         writer.println("\t}");
     }

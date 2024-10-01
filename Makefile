@@ -4,12 +4,14 @@ LOX_FILE ?=
 
 all: clean compile run
 
+tool-pipeline: clean-tool compile-tool run-tool
+
 run: run-tool run-lox
 
-run-lox: clean-lox compile-lox
+run-lox:
 	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE)
 
-run-tool: clean-tool compile-tool
+run-tool:
 	cd ./java && java com.craftinginterpreters.tool.GenerateAst $(LOX_DIR)
 
 compile: compile-tool compile-lox
