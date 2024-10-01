@@ -42,7 +42,7 @@ public class GenerateAst {
         // body of file
         writer.println("abstract class " + baseName + " {");
 
-        // the AST classes
+        // the AST classes (subclasses)
         for (String type: types) {
             // split class name and fields belonging to class...
             // ... from defineAst()'s param List<String> types
