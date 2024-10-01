@@ -1,38 +1,32 @@
-LOX_DIR = com/craftinginterpreters/lox
-TOOL_DIR = com/craftinginterpreters/tool
+LOX_DIR = ./com/craftinginterpreters/lox
+TOOL_DIR = ./com/craftinginterpreters/tool
 LOX_FILE ?=
 
 all: clean compile run
 
-run: compile
-	cd ./java && java com.craftinginterpreters.tool.GenerateAst ../lox/
+run: run-tool run-lox
+
+run-lox: clean-lox compile-lox
 	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE)
 
-compile: clean
-	cd ./java && javac $(TOOL_DIR)/*.java
-	cd ./java && javac $(LOX_DIR)/*.java
+run-tool: clean-tool compile-tool
+	cd ./java && java com.craftinginterpreters.tool.GenerateAst $(LOX_DIR)
 
-run-lox: compile-lox
-	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE)
+compile: compile-tool compile-lox
 
-compile-lox: clean-lox
-	cd ./java && javac $(LOX_DIR)/*.java
-
-run-tool: compile-tool
-	cd ./java && java com.craftinginterpreters.tool.GenerateAst ../lox/
-
-compile-tool: clean-tool
+compile-tool:
 	cd ./java && javac $(TOOL_DIR)/*.java
 
-# will eventually delete clean-lox and clean-tool & just consolidate the commands into clean
-clean: clean-lox clean-tool
+compile-lox:
+	cd ./java && javac $(LOX_DIR)/*.java
 
-# temp command
+clean: clean-tool clean-lox
+
 clean-lox:
 	rm -f java/$(LOX_DIR)/*.class
-
-# temp command
+	
 clean-tool:
+	rm -f java/$(LOX_DIR)/Expr.java
 	rm -f java/$(TOOL_DIR)/*.class
 
 .PHONY: all run compile clean clean-lox clean-tool
