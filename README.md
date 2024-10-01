@@ -21,7 +21,10 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *ii.* finished **Longer Lexemes**
 5. updates for 9/19\
     *i.* finished ***Scanning*** chapter!\
+    *ii.* started ***Representing Code*** -> **Implementing Syntax Trees**
 6. updates for 9/26\
     *i.* figured out Makefile for running commands pretty easily!\
     *ii.* running locally now instead of thru VS Code!!! yippeeeee!!!\
     *iii.* challenge: finished adding multiline commenting to jlox\
+7. updates for 10/1\
+    *i.* started 
