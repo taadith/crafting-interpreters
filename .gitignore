@@ -1,2 +1,5 @@
 # ignore all class files generated from .java files
 *.class
+
+# i hate Expr.java with all my heart, please ignore it wherever it resides
+*Expr.java
