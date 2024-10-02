@@ -3,14 +3,17 @@ TOOL_DIR = ./com/craftinginterpreters/tool
 LOX_FILE ?=
 
 .PHONY: all
-all: clean compile-tool run-tool compile-lox run-lox
+all: tool run
 
 .PHONY: ast-printer
-ast-printer: tool-pipeline compile-lox
+ast-printer: tool compile-lox
 	cd ./java && java com.craftinginterpreters.lox.AstPrinter
 
-.PHONY: tool-pipeline
-tool-pipeline: clean-tool compile-tool run-tool
+.PHONY: lox
+lox: compile-lox run-lox
+
+.PHONY: tool
+tool: compile-tool run-tool
 
 .PHONY: run-lox
 run-lox:
