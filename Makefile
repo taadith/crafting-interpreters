@@ -3,7 +3,7 @@ TOOL_DIR = ./com/craftinginterpreters/tool
 LOX_FILE ?=
 
 .PHONY: all
-all: tool run
+all: tool lox
 
 .PHONY: ast-printer
 ast-printer: tool compile-lox
