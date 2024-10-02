@@ -5,6 +5,10 @@ LOX_FILE ?=
 .PHONY: all
 all: clean compile-tool run-tool compile-lox run-lox
 
+.PHONY: ast-printer
+ast-printer: tool-pipeline compile-lox
+	cd ./java && java com.craftinginterpreters.lox.AstPrinter
+
 .PHONY: tool-pipeline
 tool-pipeline: clean-tool compile-tool run-tool
 
