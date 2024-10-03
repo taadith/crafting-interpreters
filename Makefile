@@ -40,5 +40,4 @@ clean-lox:
 
 .PHONY: clean-tool
 clean-tool:
-	rm -f java/$(LOX_DIR)/Expr.java
 	rm -f java/$(TOOL_DIR)/*.class
