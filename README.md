@@ -30,3 +30,6 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *i.* finished ***Representing Code***
 8. updates for 10/2\
     *i.* starting ***Representing Code*** -> **Challenges**
+9. updates for 10/3\
+    *i.* skipped ***Representing Code*** -> **Challenges**
+    *ii.* started ***Parsing Expressions***
