@@ -27,4 +27,6 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *ii.* running locally now instead of thru VS Code!!! yippeeeee!!!\
     *iii.* challenge: finished adding multiline commenting to jlox\
 7. updates for 10/1\
-    *i.* continuing **Implementing Syntax Trees**
+    *i.* finished ***Representing Code***
+8. updates for 10/2\
+    *i.* starting ***Representing Code*** -> **Challenges**
