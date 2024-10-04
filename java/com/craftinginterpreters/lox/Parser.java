@@ -15,11 +15,11 @@ class Parser {
         return equality();
     }
 
-    // equality -> comparison (( "!=" | "==") comparison)* ;
+    // equality -> comparison (( "!=" | "==" ) comparison )* ;
     private Expr equality() {
         Expr expr = comparison();
 
-        // `(( "!=" | "==") comparison)* ;`
+        // `(( "!=" | "==" ) comparison )*`
         while(match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
             Token operator = previous();
             Expr right = comparison();
@@ -27,6 +27,18 @@ class Parser {
         }
 
         return expr;
+    }
+
+    // comparison -> term (( ">" | ">=" | "<" | "<=" ) term )* ;
+    private Expr comparison() {
+        Expr expr = term();
+
+        // `(( ">" | ">=" | "<" | "<=" ) term )*`
+        while(match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+            Token operator = previous();
+            Expr right = term();
+            expr = new Expr.Binary(expr, operator, right);
+        }
     }
 
     private boolean match(TokenType... types) {
