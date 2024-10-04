@@ -88,6 +88,12 @@ class Scanner {
             case '*':
                 addToken(TokenType.STAR);
                 break;
+            case '?':
+                addToken(TokenType.QUESTION);
+                break;
+            case ':':
+                addToken(TokenType.COLON);
+                break;
 
             // one or two character tokens
             case '!':
