@@ -34,4 +34,4 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *i.* skipped ***Representing Code*** -> **Challenges**
     *ii.* started ***Parsing Expressions***
     *iii.* added testing and dev branches!
-    *iv.* started working on comma blocks in branch of dev: "dev-comma-block"
+    *iv.* started & finished working on comma blocks in branch of dev: "dev-comma-block"

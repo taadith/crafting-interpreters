@@ -25,14 +25,14 @@ class Parser {
 
     // all binary operators....
 
-    // expression -> equality ( "," equality )* ;
+    // expression -> equality ( "," equality )* | () ;
     private Expr expression() {
         Expr expr = equality();
 
         // `( "," equality )*`
         while (match(TokenType.COMMA)) {
             Token operator = previous();
-            Expr right = term();
+            Expr right = equality();
             expr = new Expr.Binary(expr, operator, right);
         }
 
