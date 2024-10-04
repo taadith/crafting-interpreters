@@ -25,7 +25,7 @@ class Parser {
 
     // all binary operators....
 
-    // expression -> equality ( "," equality )* | () ;
+    // expression -> equality ( "," equality )*;
     private Expr expression() {
         Expr expr = equality();
 
