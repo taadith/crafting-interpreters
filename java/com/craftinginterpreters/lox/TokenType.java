@@ -6,6 +6,7 @@ enum TokenType {
     LEFT_BRACE, RIGHT_BRACE,
     COMMA, DOT, SEMICOLON,
     MINUS, PLUS, SLASH, STAR,
+    QUESTION, COLON,
 
     // one or two character tokens
     BANG, BANG_EQUAL,
