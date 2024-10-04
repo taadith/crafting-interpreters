@@ -13,6 +13,16 @@ class Parser {
         this.tokens = tokens;
     }
 
+    Expr parse() {
+        try {
+            return expression();
+            
+        // temp code to exit out of panic mode
+        } catch (ParseError error) {
+            return null;
+        }
+    }
+
     // expression -> equality ;
     private Expr expression() {
         return equality();
@@ -107,8 +117,7 @@ class Parser {
             return new Expr.Grouping(expr);
         }
 
-        // hot fix - must replace w/ something else later
-        return new Expr.Literal(null);
+        throw error(peek(), "expected expression");
     }
 
     // checks if the current token has any of the given types
