@@ -16,19 +16,28 @@ class Parser {
     Expr parse() {
         try {
             return expression();
-            
+
         // temp code to exit out of panic mode
         } catch (ParseError error) {
             return null;
         }
     }
 
-    // expression -> equality ;
-    private Expr expression() {
-        return equality();
-    }
-
     // all binary operators....
+
+    // expression -> equality ( "," equality )* ;
+    private Expr expression() {
+        Expr expr = equality();
+
+        // `( "," equality )*`
+        while (match(TokenType.COMMA)) {
+            Token operator = previous();
+            Expr right = term();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        return expr;
+    }
 
     // equality -> comparison (( "!=" | "==" ) comparison )* ;
     private Expr equality() {
