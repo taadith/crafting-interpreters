@@ -173,29 +173,29 @@ class Parser {
         return new ParseError();
     }
 
-    private void synchronize() {
-        advance();
+    // private void synchronize() {
+    //     advance();
 
-        while(!isAtEnd()) {
+    //     while(!isAtEnd()) {
 
-            // discard tokens...
-            if (previous().type == TokenType.SEMICOLON)
-                return;
+    //         // discard tokens...
+    //         if (previous().type == TokenType.SEMICOLON)
+    //             return;
             
-            // ... until we've reached a statement boundary
-            switch (peek().type) {
-                case CLASS:
-                case FUN:
-                case VAR:
-                case FOR:
-                case IF:
-                case WHILE:
-                case PRINT:
-                case RETURN:
-                    return;
-            }
+    //         // ... until we've reached a statement boundary
+    //         switch (peek().type) {
+    //             case CLASS:
+    //             case FUN:
+    //             case VAR:
+    //             case FOR:
+    //             case IF:
+    //             case WHILE:
+    //             case PRINT:
+    //             case RETURN:
+    //                 return;
+    //         }
 
-            advance();
-        }
-    }
+    //         advance();
+    //     }
+    // }
 }
