@@ -13,15 +13,15 @@ class Parser {
         this.tokens = tokens;
     }
 
-    // expression -> equality ( "," equality )*;
+    // parse -> expression ( "," expression )* ;
     Expr parse() {
         try {
             Expr expr = expression();
 
-            // `( "," equality )*`
+            // `( "," expression )*`
             while (match(TokenType.COMMA)) {
                 Token operator = previous();
-                Expr right = equality();
+                Expr right = expression();
                 expr = new Expr.Binary(expr, operator, right);
             }
 
@@ -35,9 +35,24 @@ class Parser {
 
     // all binary operators....
 
-    // expression -> equality ;
+    // expression -> equality ( "?" expression ":" expression )* ;
     private Expr expression() {
-        return equality();
+        Expr expr = equality();
+
+        // `( "?" equality ":" equality )*`
+        while(match(TokenType.QUESTION)) {
+            Token op1 = previous();
+            Expr mid = expression();
+
+            consume(TokenType.COLON, "expected ':' after second conditional expression");
+
+            Token op2 = previous();
+            Expr right = expression();
+            
+            expr = new Expr.Ternary(expr, op1, mid, op2, right);
+        }
+
+        return expr;
     }
 
     // equality -> comparison (( "!=" | "==" ) comparison )* ;
