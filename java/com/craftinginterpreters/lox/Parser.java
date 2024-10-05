@@ -13,9 +13,19 @@ class Parser {
         this.tokens = tokens;
     }
 
+    // parse -> expression ( "," expression )* ;
     Expr parse() {
         try {
-            return expression();
+            Expr expr = expression();
+
+            // `( "," expression )*`
+            while (match(TokenType.COMMA)) {
+                Token operator = previous();
+                Expr right = expression();
+                expr = new Expr.Binary(expr, operator, right);
+            }
+
+            return expr;
 
         // temp code to exit out of panic mode
         } catch (ParseError error) {
@@ -25,15 +35,21 @@ class Parser {
 
     // all binary operators....
 
-    // expression -> equality ( "," equality )*;
+    // expression -> equality ( "?" expression ":" expression )* ;
     private Expr expression() {
         Expr expr = equality();
 
-        // `( "," equality )*`
-        while (match(TokenType.COMMA)) {
-            Token operator = previous();
-            Expr right = equality();
-            expr = new Expr.Binary(expr, operator, right);
+        // `( "?" equality ":" equality )*`
+        while(match(TokenType.QUESTION)) {
+            Token op1 = previous();
+            Expr mid = expression();
+
+            consume(TokenType.COLON, "expected ':' after second conditional expression");
+
+            Token op2 = previous();
+            Expr right = expression();
+            
+            expr = new Expr.Ternary(expr, op1, mid, op2, right);
         }
 
         return expr;
