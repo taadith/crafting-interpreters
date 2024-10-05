@@ -37,6 +37,19 @@ class Parser {
 
     // expression -> equality ( "?" expression ":" expression )* ;
     private Expr expression() {
+        // in case of... "?" expression ":" expression
+        if (match(TokenType.QUESTION)) {
+            // "?" expression
+            error(previous(), "unexpected '?' w/out left-hand operand");
+            expression();
+
+            // ":" expression
+            consume(TokenType.COLON, "expected ':' after expression");
+            expression();
+
+            return null;
+        }
+
         Expr expr = equality();
 
         // `( "?" equality ":" equality )*`
@@ -57,6 +70,13 @@ class Parser {
 
     // equality -> comparison (( "!=" | "==" ) comparison )* ;
     private Expr equality() {
+        if (match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+            error(previous(), "unexpected equality operator w/out left-hand operand");
+            comparison();
+
+            return null;
+        }
+
         Expr expr = comparison();
 
         // `(( "!=" | "==" ) comparison )*`
@@ -71,6 +91,13 @@ class Parser {
 
     // comparison -> term (( ">" | ">=" | "<" | "<=" ) term )* ;
     private Expr comparison() {
+        if (match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL)) {
+            error(previous(), "unexpected comparison operator w/out left-hand operand");
+            term();
+
+            return null;
+        }
+
         Expr expr = term();
 
         // `(( ">" | ">=" | "<" | "<=" ) term )*`
@@ -85,6 +112,13 @@ class Parser {
 
     // term -> factor (( "-" | "+" ) factor )* ;
     private Expr term() {
+        if (match(TokenType.MINUS, TokenType.PLUS)) {
+            error(previous(), "unexpected additive operator w/out left-hand operand");
+            factor();
+
+            return null;
+        }
+
         Expr expr = factor();
 
         // `(( "-" | "+" ) factor )*`
@@ -99,6 +133,13 @@ class Parser {
 
     // factor -> unary (( "/" | "*" ") unary )* ;
     private Expr factor() {
+        if (match(TokenType.SLASH, TokenType.STAR)) {
+            error(previous(), "unexpected multiplicative operator w/out left-hand operand");
+            unary();
+
+            return null;
+        }
+
         Expr expr = unary();
 
         // `(( "/" | "*" ") unary )`

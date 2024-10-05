@@ -76,7 +76,7 @@ public class Lox {
     }
 
     private static void report(int line, String where, String msg) {
-        System.err.println("[line " + line + "] Error" +
+        System.err.println("[line " + line + "] error" +
             where + ": " + msg);
         hadError = true;
     }
