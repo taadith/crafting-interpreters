@@ -13,9 +13,19 @@ class Parser {
         this.tokens = tokens;
     }
 
+    // expression -> equality ( "," equality )*;
     Expr parse() {
         try {
-            return expression();
+            Expr expr = expression();
+
+            // `( "," equality )*`
+            while (match(TokenType.COMMA)) {
+                Token operator = previous();
+                Expr right = equality();
+                expr = new Expr.Binary(expr, operator, right);
+            }
+
+            return expr;
 
         // temp code to exit out of panic mode
         } catch (ParseError error) {
@@ -25,18 +35,9 @@ class Parser {
 
     // all binary operators....
 
-    // expression -> equality ( "," equality )*;
+    // expression -> equality ;
     private Expr expression() {
-        Expr expr = equality();
-
-        // `( "," equality )*`
-        while (match(TokenType.COMMA)) {
-            Token operator = previous();
-            Expr right = equality();
-            expr = new Expr.Binary(expr, operator, right);
-        }
-
-        return expr;
+        return equality();
     }
 
     // equality -> comparison (( "!=" | "==" ) comparison )* ;
