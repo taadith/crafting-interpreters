@@ -32,6 +32,10 @@ class Interpreter implements Expr.Visitor<Object> {
         Object right = evaluate(expr.right);
 
         switch(expr.operator.type) {
+            // "expression" (?) operator
+            case COMMA:
+                return right;
+
             // equality operators
             case BANG_EQUAL:
                 return !isEqual(left, right);
