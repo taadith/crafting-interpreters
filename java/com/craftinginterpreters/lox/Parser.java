@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 class Parser {
@@ -12,28 +13,47 @@ class Parser {
     Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
+    
+    // program -> statement* EOF ;
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
 
-    // parse -> expression ( "," expression )* ;
-    Expr parse() {
-        try {
-            Expr expr = expression();
-
-            // `( "," expression )*`
-            while (match(TokenType.COMMA)) {
-                Token operator = previous();
-                Expr right = expression();
-                expr = new Expr.Binary(expr, operator, right);
-            }
-
-            return expr;
-
-        // temp code to exit out of panic mode
-        } catch (ParseError error) {
-            return null;
-        }
+        while(!isAtEnd())
+            statements.add(statement());
+        
+        return statements;
     }
 
-    // all binary operators....
+    // statement -> exprStatement
+    //              | printStmt ;
+    private Stmt statement() {
+        if (match(TokenType.PRINT))
+            return printStatement();
+        
+        return expressionStatement();
+    }
+
+    // exprStmt -> expression ( "," expression )* ";" ;
+    private Stmt expressionStatement() {
+        Expr expr = expression();
+
+        //`( "," expression )*`
+        while (match(TokenType.COMMA)) {
+            Token operator = previous();
+            Expr right = expression();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+
+        consume(TokenType.SEMICOLON, "expected ';' after expression");
+        return new Stmt.Expression(expr);
+    }
+
+    // printStmt -> "print" expression ";" ;
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(TokenType.SEMICOLON, "expected ';' after value");
+        return new Stmt.Print(value);
+    }
 
     // expression -> equality ( "?" expression ":" expression )* ;
     private Expr expression() {
@@ -67,6 +87,9 @@ class Parser {
 
         return expr;
     }
+
+    // all binary operators....
+
 
     // equality -> comparison (( "!=" | "==" ) comparison )* ;
     private Expr equality() {
