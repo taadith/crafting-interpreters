@@ -11,6 +11,7 @@ import java.util.List;
 
 public class Lox {
     static boolean hadError = false;
+    static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
@@ -33,6 +34,10 @@ public class Lox {
         // input data is incorrect (UNIX "sysexits.h" header)
         if (hadError)
             System.exit(65);
+        
+        // internal software error (UNIX "sysexits.h" header)
+        if (hadRuntimeError)
+            System.exit(70);
     }
 
     // fires up an interactive prompt or REPL (read, eval, print, loop)
@@ -87,5 +92,15 @@ public class Lox {
             report(token.line, " at end", msg);
         else
             report(token.line, " at '" + token.lexeme + "'", msg);
+    }
+
+    static void runtimeError(RuntimeError error) {
+        // token associated w/ error tells user...
+        // ... the line of code executing when...
+        // ... the error occurred
+        System.err.println(error.getMessage() +
+            "\n[line " + error.token.line + "]");
+        
+        hadRuntimeError = true;
     }
 }
