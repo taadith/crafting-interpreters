@@ -39,4 +39,5 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *i.* started and finished ***Parsing Expressions*** -> **Challenges** (comma block, ternary conditional operator, and error productions for binary operators)
     *ii.* started and finished ***Evaluating Expressions*** -> **Challenges** (string concatentation extension and division by zero runtime error)
 11. updates for 10/6\
-    *i.* started ***Statements and State***
+    *i.* started and finished ***Statements and State*** -> **Statements**
+    *ii.* started ***Statements and State*** -> ** Global Variables**
