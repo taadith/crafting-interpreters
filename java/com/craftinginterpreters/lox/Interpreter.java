@@ -1,29 +1,33 @@
 package com.craftinginterpreters.lox;
 
-// declaring itself as a visitor
-class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
 
-    void interpret(Expr expression) {
+// declaring itself as a visitor...
+// ... also Void is a generic type arg
+class Interpreter implements Expr.Visitor<Object>,
+                             Stmt.Visitor<Void> {
+
+    void interpret(List<Stmt> stmts) {
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for (Stmt stmt : stmts)
+                execute(stmt);
+            
         } catch(RuntimeError error) {
             Lox.runtimeError(error);
         }
     }
 
-    private String stringify(Object obj) {
-        if (obj == null)
-            return "nil";
-        
-        if (obj instanceof Double) {
-            String txt = obj.toString();
-            if (txt.endsWith(".0"))
-                txt = txt.substring(0, txt.length() - 2);
-            return txt;
-        }
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
 
-        return obj.toString();
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 
     @Override
@@ -178,8 +182,26 @@ class Interpreter implements Expr.Visitor<Object> {
         throw new RuntimeError(op, "operands must be numbers");
     }
 
+    private String stringify(Object obj) {
+        if (obj == null)
+            return "nil";
+        
+        if (obj instanceof Double) {
+            String txt = obj.toString();
+            if (txt.endsWith(".0"))
+                txt = txt.substring(0, txt.length() - 2);
+            return txt;
+        }
+
+        return obj.toString();
+    }
+
     private Object evaluate(Expr expr) {
         return expr.accept(this);
+    }
+
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
     }
 
 }
