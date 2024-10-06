@@ -24,6 +24,11 @@ class Parser {
         return statements;
     }
 
+    // declaration -> varDecl
+    //                | statement ;
+
+    // varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
+
     // statement -> exprStatement
     //              | printStmt ;
     private Stmt statement() {
@@ -89,7 +94,6 @@ class Parser {
     }
 
     // all binary operators....
-
 
     // equality -> comparison (( "!=" | "==" ) comparison )* ;
     private Expr equality() {
@@ -187,8 +191,10 @@ class Parser {
         return primary();
     }
 
-    // primary -> NUMBER | STRING | "true" | "false" | "nil"
-    //            | "(" expression ")" ;
+    // primary -> "false" | "true" | "nil"
+    //            | NUMBER | STRING
+    //            | "(" expression ")"
+    //            | IDENTIFIER ;
     private Expr primary() {
         if (match(TokenType.FALSE))
             return new Expr.Literal(false);
