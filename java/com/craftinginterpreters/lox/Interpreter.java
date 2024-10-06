@@ -196,12 +196,12 @@ class Interpreter implements Expr.Visitor<Object>,
         return obj.toString();
     }
 
-    private Object evaluate(Expr expr) {
-        return expr.accept(this);
-    }
-
     private void execute(Stmt stmt) {
         stmt.accept(this);
+    }
+    
+    private Object evaluate(Expr expr) {
+        return expr.accept(this);
     }
 
 }

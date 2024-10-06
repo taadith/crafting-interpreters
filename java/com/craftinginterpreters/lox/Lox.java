@@ -68,13 +68,13 @@ public class Lox {
         Scanner scanner = new Scanner(src);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
-        Expr expression = parser.parse();
+        List<Stmt> stmts = parser.parse();
 
         // stop if there's a syntax error
         if (hadError)
             return;
         
-        interpreter.interpret(expression);
+        interpreter.interpret(stmts);
     }
 
     static void error(int line, String msg) {
