@@ -36,5 +36,5 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
     *iii.* added testing and dev branches!
     *iv.* started & finished working on comma blocks in branch of dev: "dev-comma-block"
 10. updates for 10/5\
-    *i.* started and finished ***Parsing Expressions*** -> **Challenges** (comma block, ternary conditional operator, error productions for binary operators)
-    *ii.* started ***Evaluating Expressions***
+    *i.* started and finished ***Parsing Expressions*** -> **Challenges** (comma block, ternary conditional operator, and error productions for binary operators), ***Evaluating Expressions***
+    *ii.* started ***Evaluating Expressions*** -> **Challenges** (string concatentation extension)

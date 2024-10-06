@@ -67,13 +67,18 @@ class Interpreter implements Expr.Visitor<Object> {
                 return (double)left - (double)right;
 
             case PLUS:
-                // dynamically checking the type of operands
+                // one or the other is a String
+                if (left instanceof String && right instanceof Double)
+                    return (String)left + stringify(right);
+                if (left instanceof Double && right instanceof String)
+                    return stringify(left) + (String)right;
+                // both are the same type
                 if (left instanceof Double && right instanceof Double)
                     return (double)left + (double)right;
                 if (left instanceof String && right instanceof String)
                     return (String)left + (String)right;
                 throw new RuntimeError(expr.operator,
-                    "operands must be two numbers or two strings");
+                    "operands must numbers or strings");
             
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
