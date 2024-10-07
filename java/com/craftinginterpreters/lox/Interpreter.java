@@ -6,6 +6,8 @@ import java.util.List;
 // ... also Void is a generic type arg
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
+    
+    private Environment env = new Environment();
 
     void interpret(List<Stmt> stmts) {
         try {
@@ -15,6 +17,20 @@ class Interpreter implements Expr.Visitor<Object>,
         } catch(RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        Object value = null;
+
+        // evaluate variable w/ initalizer
+        if (stmt.initializer != null)
+            value = evaluate(stmt.initializer);
+        
+        // set it to nil if it comes w/ no initializer
+        env.define(stmt.name.lexeme, value);
+
+        return null;
     }
 
     @Override
@@ -158,6 +174,13 @@ class Interpreter implements Expr.Visitor<Object>,
 
         // unreachable
         return null;
+    }
+
+    // forwards to the environment, which does...
+    // ... the heavy lifting of determine if the variable is defined
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr) {
+        return env.get(expr.name);
     }
 
     private boolean isTruthy(Object obj) {
