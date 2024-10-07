@@ -14,20 +14,42 @@ class Parser {
         this.tokens = tokens;
     }
     
-    // program -> statement* EOF ;
+    // program -> declaration* EOF ;
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
 
         while(!isAtEnd())
-            statements.add(statement());
+            statements.add(declaration());
         
         return statements;
     }
 
     // declaration -> varDecl
     //                | statement ;
+    private Stmt declaration() {
+        try {
+            // `"var" `
+            if (match(TokenType.VAR))
+                return varDeclaration();
+            
+            return statement();
+        } catch (ParseError error) {
+            synchronize();
+            return null;
+        }
+    }
 
-    // varDecl -> "var" IDENTIFIER ( "=" expression )? ";" ;
+    // varDecl -> IDENTIFIER ( "=" expression )? ";" ;
+    private Stmt varDeclaration() {
+        Token name = consume(TokenType.IDENTIFIER, "expected a variable name");
+
+        Expr initializer = null;
+        if (match(TokenType.EQUAL))
+            initializer = expression();
+        
+        consume(TokenType.SEMICOLON, "expected ';' after variable declaration");
+        return new Stmt.Var(name, initializer);
+    }
 
     // statement -> exprStatement
     //              | printStmt ;
@@ -193,8 +215,8 @@ class Parser {
 
     // primary -> "false" | "true" | "nil"
     //            | NUMBER | STRING
-    //            | "(" expression ")"
-    //            | IDENTIFIER ;
+    //            | IDENTIFIER
+    //            | "(" expression ")" ;
     private Expr primary() {
         if (match(TokenType.FALSE))
             return new Expr.Literal(false);
@@ -205,6 +227,9 @@ class Parser {
 
         if (match(TokenType.NUMBER, TokenType.STRING))
             return new Expr.Literal(previous().literal);
+        
+        if (match(TokenType.IDENTIFIER))
+            return new Expr.Variable(previous());
         
         if (match(TokenType.LEFT_PAREN)) {
             Expr expr = expression();
@@ -277,29 +302,29 @@ class Parser {
         return new ParseError();
     }
 
-    // private void synchronize() {
-    //     advance();
+    private void synchronize() {
+        advance();
 
-    //     while(!isAtEnd()) {
+        while(!isAtEnd()) {
 
-    //         // discard tokens...
-    //         if (previous().type == TokenType.SEMICOLON)
-    //             return;
+            // discard tokens...
+            if (previous().type == TokenType.SEMICOLON)
+                return;
             
-    //         // ... until we've reached a statement boundary
-    //         switch (peek().type) {
-    //             case CLASS:
-    //             case FUN:
-    //             case VAR:
-    //             case FOR:
-    //             case IF:
-    //             case WHILE:
-    //             case PRINT:
-    //             case RETURN:
-    //                 return;
-    //         }
+            // ... until we've reached a statement boundary
+            switch (peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
 
-    //         advance();
-    //     }
-    // }
+            advance();
+        }
+    }
 }
