@@ -82,32 +82,59 @@ class Parser {
         return new Stmt.Print(value);
     }
 
-    // expression -> equality ( "?" expression ":" expression )* ;
+    // expression -> assignment ;
     private Expr expression() {
-        // in case of... "?" expression ":" expression
+        return assignment();
+    }
+
+    // assignment -> IDENTIFIER "=" assignment
+    //               | conditional ;
+    private Expr assignment() {
+        Expr expr = conditional();
+
+        if (match(TokenType.EQUAL)) {
+            Token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable) expr).name;
+                return new Expr.Assign(name, value);
+            }
+
+            error(equals, "invalid assignment target");
+        }
+
+        return expr;
+    }
+
+    // ternary conditional operator
+
+    // conditional -> equality ( "?" conditional ":" conditional )* ;
+    private Expr conditional() {
+        // in case of `"?" conditional ":" conditional`
         if (match(TokenType.QUESTION)) {
             // "?" expression
             error(previous(), "unexpected '?' w/out left-hand operand");
-            expression();
+            conditional();
 
-            // ":" expression
+            // `":" conditional`
             consume(TokenType.COLON, "expected ':' after expression");
-            expression();
+            conditional();
 
             return null;
         }
 
         Expr expr = equality();
 
-        // `( "?" equality ":" equality )*`
+        // `( "?" conditional ":" conditional )*`
         while(match(TokenType.QUESTION)) {
             Token op1 = previous();
-            Expr mid = expression();
+            Expr mid = conditional();
 
             consume(TokenType.COLON, "expected ':' after second conditional expression");
 
             Token op2 = previous();
-            Expr right = expression();
+            Expr right = conditional();
             
             expr = new Expr.Ternary(expr, op1, mid, op2, right);
         }
