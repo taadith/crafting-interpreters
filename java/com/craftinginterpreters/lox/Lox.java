@@ -68,6 +68,8 @@ public class Lox {
         Scanner scanner = new Scanner(src);
         List<Token> tokens = scanner.scanTokens();
         Parser parser = new Parser(tokens);
+
+        
         List<Stmt> stmts = parser.parse();
 
         // stop if there's a syntax error
