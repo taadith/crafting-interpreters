@@ -46,6 +46,14 @@ class Interpreter implements Expr.Visitor<Object>,
         return null;
     }
 
+    // evalutes rhs to get the value and store it in a named variable
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr) {
+        Object value = evaluate(expr.value);
+        env.assign(expr.name, value);
+        return value;
+    }
+
     @Override
     public Object visitBinaryExpr(Expr.Binary expr) {
         Object left = evaluate(expr.left);

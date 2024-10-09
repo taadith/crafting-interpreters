@@ -22,4 +22,16 @@ class Environment {
         throw new RuntimeError(name,
             "undefined variable '" + name.lexeme + "'");
     }
+
+    // not allowed to create a new variable
+    void assign(Token name, Object value) {
+        if (values.containsKey(name.lexeme)) {
+            values.put(name.lexeme, value);
+            return;
+        }
+
+        // runtime error if key doesn't already exist in env's variable map
+        throw new RuntimeError(name,
+            "undefined variable '" + name.lexeme + "'");
+    }
 }
