@@ -52,10 +52,14 @@ class Parser {
     }
 
     // statement -> exprStatement
-    //              | printStmt ;
+    //              | printStmt 
+    //              | block ;
     private Stmt statement() {
         if (match(TokenType.PRINT))
             return printStatement();
+        
+        if (match(TokenType.LEFT_BRACE))
+            return new Stmt.Block(block());
         
         return expressionStatement();
     }
@@ -80,6 +84,19 @@ class Parser {
         Expr value = expression();
         consume(TokenType.SEMICOLON, "expected ';' after value");
         return new Stmt.Print(value);
+    }
+
+    // block -> "{" declaration* "}" ;
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+
+        // parse stmts until end the end of the block...
+        // ... or at EOF
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd())
+            statements.add(declaration());
+        
+        consume(TokenType.RIGHT_BRACE, "expected '}' after the block");
+        return statements;
     }
 
     // expression -> assignment ;

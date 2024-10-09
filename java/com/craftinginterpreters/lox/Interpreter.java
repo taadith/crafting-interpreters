@@ -46,6 +46,12 @@ class Interpreter implements Expr.Visitor<Object>,
         return null;
     }
 
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        executeBlock(stmt.statements, new Environment(env));
+        return null;
+    }
+
     // evalutes rhs to get the value and store it in a named variable
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
@@ -191,6 +197,29 @@ class Interpreter implements Expr.Visitor<Object>,
         return env.get(expr.name);
     }
 
+    void executeBlock(List<Stmt> stmts,
+                      Environment env) {
+        
+        Environment previous = this.env;
+        try {
+            this.env = env;
+
+            // executing list of Stmt in the context of a given env
+            for (Stmt stmt : stmts)
+                execute(stmt);
+        } finally {
+            this.env = previous;
+        }
+    }
+    
+    private void execute(Stmt stmt) {
+        stmt.accept(this);
+    }
+    
+    private Object evaluate(Expr expr) {
+        return expr.accept(this);
+    }
+
     private boolean isTruthy(Object obj) {
         if (obj == null)
             return false;
@@ -225,14 +254,6 @@ class Interpreter implements Expr.Visitor<Object>,
         }
 
         return obj.toString();
-    }
-
-    private void execute(Stmt stmt) {
-        stmt.accept(this);
-    }
-    
-    private Object evaluate(Expr expr) {
-        return expr.accept(this);
     }
 
 }
