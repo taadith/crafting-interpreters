@@ -50,12 +50,13 @@ public class Lox {
         for(;;) {
             System.out.print("> ");
 
-            // killing an interactice command-line app w/ Ctrl-D...
+            // killing an interactive command-line app w/ Ctrl-D...
             // ... signalling an EOF condition to the program, ...
             // ... subsequently, readLine() returns null
             String line = reader.readLine();
             if(line == null)
                 break;
+            
             run(line);
 
             // resetting flag in interactive loop

@@ -9,7 +9,7 @@ class Interpreter implements Expr.Visitor<Object>,
     
     private Environment env = new Environment();
 
-    void interpret(List<Stmt> stmts) {
+    public void interpret(List<Stmt> stmts) {
         try {
             for (Stmt stmt : stmts)
                 execute(stmt);
