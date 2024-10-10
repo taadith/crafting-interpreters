@@ -13,8 +13,8 @@ class Interpreter implements Expr.Visitor<Object>,
         try {
             for (Stmt stmt : stmts)
                 execute(stmt);
-            
-        } catch(RuntimeError error) {
+        }
+        catch(RuntimeError error) {
             Lox.runtimeError(error);
         }
     }
