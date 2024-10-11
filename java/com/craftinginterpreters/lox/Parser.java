@@ -124,9 +124,9 @@ class Parser {
     }
 
     // assignment -> IDENTIFIER "=" assignment
-    //               | conditional ;
+    //               | logic_or ;
     private Expr assignment() {
-        Expr expr = conditional();
+        Expr expr = or();
 
         if (match(TokenType.EQUAL)) {
             Token equals = previous();
@@ -143,7 +143,37 @@ class Parser {
         return expr;
     }
 
-    // ternary conditional operator
+    // logical operators...
+
+    // logic_or -> logic_and ( "or" logic_and )* ;
+    private Expr or() {
+        Expr expr = and();
+
+        // `( "or" logic_and )*`
+        while(match(TokenType.OR)) {
+            Token operator = previous();
+            Expr right = and();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    // logic_and -> conditional ( "and" conditional )* ;
+    private Expr and() {
+        Expr expr = conditional();
+
+        // `( "and" conditional )*`
+        while(match(TokenType.AND)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    // ternary conditional operator...
 
     // conditional -> equality ( "?" conditional ":" conditional )* ;
     private Expr conditional() {
