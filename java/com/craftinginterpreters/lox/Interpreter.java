@@ -20,22 +20,23 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     @Override
-    public Void visitVarStmt(Stmt.Var stmt) {
-        Object value = null;
-
-        // evaluate variable w/ initalizer
-        if (stmt.initializer != null)
-            value = evaluate(stmt.initializer);
-        
-        // set it to nil if it comes w/ no initializer
-        env.define(stmt.name.lexeme, value);
-
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        executeBlock(stmt.statements, new Environment(env));
         return null;
     }
 
     @Override
     public Void visitExpressionStmt(Stmt.Expression stmt) {
         evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitIfStmt(Stmt.If stmt) {
+        if (isTruthy(evaluate(stmt.condition)))
+            execute(stmt.thenBranch);
+        else if (stmt.elseBranch != null)
+            execute(stmt.elseBranch);
         return null;
     }
 
@@ -47,8 +48,16 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     @Override
-    public Void visitBlockStmt(Stmt.Block stmt) {
-        executeBlock(stmt.statements, new Environment(env));
+    public Void visitVarStmt(Stmt.Var stmt) {
+        Object value = null;
+
+        // evaluate variable w/ initalizer
+        if (stmt.initializer != null)
+            value = evaluate(stmt.initializer);
+        
+        // set it to nil if it comes w/ no initializer
+        env.define(stmt.name.lexeme, value);
+
         return null;
     }
 
