@@ -1,0 +1,4 @@
+var anya = "cute";
+
+if (anya == "cute")
+    print "anya is cute";
