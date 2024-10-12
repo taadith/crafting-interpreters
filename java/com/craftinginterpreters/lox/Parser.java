@@ -54,6 +54,7 @@ class Parser {
     // statement -> exprStatement
     //              | ifStmt
     //              | printStmt 
+    //              | whileStmt
     //              | block ;
     private Stmt statement() {
         if (match(TokenType.IF))
@@ -105,6 +106,8 @@ class Parser {
         return new Stmt.Print(value);
     }
 
+    // whileStmt -> "while" "(" expression ")" statement;
+    
     // block -> "{" declaration* "}" ;
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
