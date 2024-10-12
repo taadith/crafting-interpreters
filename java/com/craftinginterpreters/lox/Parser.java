@@ -57,6 +57,8 @@ class Parser {
     //              | ifStmt
     //              | printStmt 
     //              | whileStmt
+    //              | breakStmt
+    //              | continueStmt
     //              | block ;
     private Stmt statement() {
         if (match(TokenType.FOR))
@@ -70,6 +72,12 @@ class Parser {
         
         if (match(TokenType.WHILE))
             return whileStatement();
+        
+        if (match(TokenType.BREAK))
+            return breakStatement();
+        
+        if (match(TokenType.CONTINUE))
+            return continueStatement();
         
         if (match(TokenType.LEFT_BRACE))
             return new Stmt.Block(block());
@@ -173,6 +181,20 @@ class Parser {
         return new Stmt.While(condition, body);
     }
     
+    // breakStmt -> "break" ";"
+    private Stmt breakStatement() {
+        Token keyword = previous();
+        consume(TokenType.SEMICOLON, "expected ';' after 'break'");
+        return new Stmt.Break();
+    }
+
+    // continueStmt -> "continue" ";"
+    private Stmt continueStatement() {
+        Token keyword = previous();
+        consume(TokenType.SEMICOLON, "expected ';' after 'continue'");
+        return new Stmt.Continue();
+    }
+
     // block -> "{" declaration* "}" ;
     private List<Stmt> block() {
         List<Stmt> statements = new ArrayList<>();
