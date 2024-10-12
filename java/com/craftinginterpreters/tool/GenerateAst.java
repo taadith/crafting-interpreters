@@ -125,3 +125,35 @@ public class GenerateAst {
         writer.println("\t}");
     }
 }
+
+
+// for Break and Continue:
+
+// abstract class Stmt {
+//     interface Visitor<R> {
+//        R visitBlockStmt(Block stmt);
+//
+//        ++ R visitBreakStmt();
+//        ++ R visitContinueStmt();
+//
+//        R visitExpressionStmt(Expression stmt);
+//        ...
+// }
+
+// ...........
+
+// adding both of these static classes
+
+// static class Break extends Stmt {
+//     @Override
+//     <R> R accept(Visitor<R> visitor) {
+//         return visitor.visitBreakStmt();
+//     }
+// }
+
+// static class Continue extends Stmt {
+//     @Override
+//     <R> R accept(Visitor<R> visitor) {
+//         return visitor.visitContinueStmt();
+//     }
+// }
