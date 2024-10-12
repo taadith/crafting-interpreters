@@ -41,3 +41,7 @@ Following Robert Nystrom's implementation of jlox/clox in an effort to learn how
 11. updates for 10/6\
     *i.* started and finished ***Statements and State*** -> **Statements**
     *ii.* started ***Statements and State*** -> ** Global Variables**
+12. updates for 10/12\
+    *i.* finished ***Statements and State***
+    *ii.* started and finished ***Control Flow***
+    *iii.* started ***Functions***

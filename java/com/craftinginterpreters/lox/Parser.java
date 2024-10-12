@@ -363,7 +363,7 @@ class Parser {
     }
 
     // unary -> ( "!" | "-" ) unary
-    //          | primary ;
+    //          | call ;
     private Expr unary() {
         if (match(TokenType.BANG, TokenType.MINUS)) {
             Token operator = previous();
@@ -371,8 +371,37 @@ class Parser {
             return new Expr.Unary(operator, right);
         }
 
-        return primary();
+        return call();
     }
+
+    // call -> primary ( "(" arguments? ")" )* ;
+    private Expr call() {
+        Expr expr = primary();
+
+        while(true) {
+            if (match(TokenType.LEFT_PAREN))
+                expr = finishCall(expr);
+            else
+                break;
+        }
+
+        return expr;
+    }
+
+    private Expr finishCall(Expr callee) {
+        List<Expr> args = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                args.add(expression());
+            } while (match(TokenType.COMMA));
+        }
+
+        Token paren = consume(TokenType.RIGHT_PAREN, "expected ')' after arguments");
+
+        return new Expr.Call(callee, paren, args);
+    }
+
+    // arguments -> expression ( "," expression)* ;
 
     // primary -> "false" | "true" | "nil"
     //            | NUMBER | STRING
