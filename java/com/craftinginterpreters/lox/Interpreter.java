@@ -61,6 +61,14 @@ class Interpreter implements Expr.Visitor<Object>,
         return null;
     }
 
+    @Override
+    public Void visitWhileStmt(Stmt.While stmt) {
+        while (isTruthy(evaluate(stmt.condition)))
+            execute(stmt.body);
+        
+        return null;
+    }
+
     // evalutes rhs to get the value and store it in a named variable
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
