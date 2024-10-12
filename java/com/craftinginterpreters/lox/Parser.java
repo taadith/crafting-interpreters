@@ -63,6 +63,9 @@ class Parser {
         if (match(TokenType.PRINT))
             return printStatement();
         
+        if (match(TokenType.WHILE))
+            return whileStatement();
+        
         if (match(TokenType.LEFT_BRACE))
             return new Stmt.Block(block());
         
@@ -106,7 +109,16 @@ class Parser {
         return new Stmt.Print(value);
     }
 
-    // whileStmt -> "while" "(" expression ")" statement;
+    // whileStmt -> "while" "(" expression ")" statement ;
+    private Stmt whileStatement() {
+        consume(TokenType.LEFT_PAREN, "expected '(' after 'while'");
+        Expr condition = expression();
+
+        consume(TokenType.RIGHT_PAREN, "expected ')' after condition");
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+    }
     
     // block -> "{" declaration* "}" ;
     private List<Stmt> block() {
