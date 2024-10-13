@@ -19,11 +19,11 @@ public class GenerateAst {
         defineAst(outputDir, "Expr", Arrays.asList(
             "Assign: Token name, Expr value",
             "Binary     : Expr left, Token operator, Expr right",
-            "Ternary    : Expr left, Token op1, Expr mid, Token op2, Expr right",
-            "Call       : Expr callee, Token paren, List<Expr> arguments",
+            "Call       : Expr callee, Token paren, List<Expr> args",
             "Grouping   : Expr expression",
             "Literal    : Object value",
             "Logical    : Expr left, Token operator, Expr right",
+            "Ternary    : Expr left, Token op1, Expr mid, Token op2, Expr right",
             "Unary      : Token operator, Expr right",
             "Variable   : Token name"
         ));

@@ -6,11 +6,11 @@ abstract class Expr {
 	 interface Visitor<R> {
 		R visitAssignExpr(Assign expr);
 		R visitBinaryExpr(Binary expr);
-		R visitTernaryExpr(Ternary expr);
 		R visitCallExpr(Call expr);
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
 		R visitLogicalExpr(Logical expr);
+		R visitTernaryExpr(Ternary expr);
 		R visitUnaryExpr(Unary expr);
 		R visitVariableExpr(Variable expr);
 	}
@@ -47,32 +47,11 @@ abstract class Expr {
 		final Expr right;
 	}
 
-	static class Ternary extends Expr {
-		Ternary(Expr left, Token op1, Expr mid, Token op2, Expr right) {
-			this.left = left;
-			this.op1 = op1;
-			this.mid = mid;
-			this.op2 = op2;
-			this.right = right;
-		}
-
-		@Override
-		<R> R accept(Visitor<R> visitor) {
-			return visitor.visitTernaryExpr(this);
-		}
-
-		final Expr left;
-		final Token op1;
-		final Expr mid;
-		final Token op2;
-		final Expr right;
-	}
-
 	static class Call extends Expr {
-		Call(Expr callee, Token paren, List<Expr> arguments) {
+		Call(Expr callee, Token paren, List<Expr> args) {
 			this.callee = callee;
 			this.paren = paren;
-			this.arguments = arguments;
+			this.args = args;
 		}
 
 		@Override
@@ -82,7 +61,7 @@ abstract class Expr {
 
 		final Expr callee;
 		final Token paren;
-		final List<Expr> arguments;
+		final List<Expr> args;
 	}
 
 	static class Grouping extends Expr {
@@ -125,6 +104,27 @@ abstract class Expr {
 
 		final Expr left;
 		final Token operator;
+		final Expr right;
+	}
+
+	static class Ternary extends Expr {
+		Ternary(Expr left, Token op1, Expr mid, Token op2, Expr right) {
+			this.left = left;
+			this.op1 = op1;
+			this.mid = mid;
+			this.op2 = op2;
+			this.right = right;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitTernaryExpr(this);
+		}
+
+		final Expr left;
+		final Token op1;
+		final Expr mid;
+		final Token op2;
 		final Expr right;
 	}
 

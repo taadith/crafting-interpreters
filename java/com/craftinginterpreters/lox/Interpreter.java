@@ -1,5 +1,6 @@
 package com.craftinginterpreters.lox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // declaring itself as a visitor...
@@ -147,22 +148,6 @@ class Interpreter implements Expr.Visitor<Object>,
         return null;
     }
 
-    @Override
-    public Object visitTernaryExpr(Expr.Ternary expr) {
-        Object left = evaluate(expr.left);
-        Object mid = evaluate(expr.mid);
-        Object right = evaluate(expr.right);
-
-        if (expr.op1.type == TokenType.QUESTION && expr.op2.type == TokenType.COLON) {
-            if(isTruthy(left))
-                return mid;
-            return right;
-        }
-
-        // unreachable (?)
-        return null;
-    }
-
     private boolean isEqual(Object a, Object b) {
         if (a == null && b == null)
             return true;
@@ -172,6 +157,21 @@ class Interpreter implements Expr.Visitor<Object>,
         return a.equals(b);
     }
     
+    @Override
+    public Object visitCallExpr(Expr.Call expr) {
+        Object callee = evaluate(expr.callee);
+
+        List<Object> args = new ArrayList<>();
+        for (Expr arg : expr.args)
+            args.add(evaluate(arg));
+        
+        if (!(callee instanceof LoxCallable))
+            throw new RuntimeError(expr.paren, 
+                "can only call functions and classes");
+        
+        LoxCallable function = (LoxCallable) callee;
+        return function.call(this, args);
+    }
     // grouping node has a reference to an inner node...
     // ... for the expression contained w/in the "()"
     @Override
@@ -200,6 +200,22 @@ class Interpreter implements Expr.Visitor<Object>,
         }
 
         return evaluate(expr.right);
+    }
+
+    @Override
+    public Object visitTernaryExpr(Expr.Ternary expr) {
+        Object left = evaluate(expr.left);
+        Object mid = evaluate(expr.mid);
+        Object right = evaluate(expr.right);
+
+        if (expr.op1.type == TokenType.QUESTION && expr.op2.type == TokenType.COLON) {
+            if(isTruthy(left))
+                return mid;
+            return right;
+        }
+
+        // unreachable (?)
+        return null;
     }
     
     @Override
