@@ -388,10 +388,14 @@ class Parser {
         return expr;
     }
 
+    // arguments -> expression ( "," expression)* ;
     private Expr finishCall(Expr callee) {
         List<Expr> args = new ArrayList<>();
         if (!check(TokenType.RIGHT_PAREN)) {
             do {
+                if (args.size() >= 255)
+                    error(peek(), "can't have more than 255 arguments");
+                
                 args.add(expression());
             } while (match(TokenType.COMMA));
         }
@@ -400,8 +404,6 @@ class Parser {
 
         return new Expr.Call(callee, paren, args);
     }
-
-    // arguments -> expression ( "," expression)* ;
 
     // primary -> "false" | "true" | "nil"
     //            | NUMBER | STRING
