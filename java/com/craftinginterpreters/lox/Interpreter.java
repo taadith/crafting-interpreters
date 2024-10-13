@@ -8,7 +8,28 @@ import java.util.List;
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Void> {
     
-    private Environment env = new Environment();
+    final Environment globals = new Environment();
+    private Environment env = globals;
+
+    Interpreter() {
+        globals.define("clock", new LoxCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter,
+                               List<Object> args) {
+                return (double)System.currentTimeMillis() / 1000.0;
+            }
+
+            @Override
+            public String toString() {
+                return "<navtive fn>";
+            }
+        });
+    }
 
     public void interpret(List<Stmt> stmts) {
         try {
@@ -165,11 +186,18 @@ class Interpreter implements Expr.Visitor<Object>,
         for (Expr arg : expr.args)
             args.add(evaluate(arg));
         
-        if (!(callee instanceof LoxCallable))
+        if (!(callee instanceof LoxCallable)) {
             throw new RuntimeError(expr.paren, 
                 "can only call functions and classes");
+        }
         
         LoxCallable function = (LoxCallable) callee;
+        if (args.size() != function.arity()) {
+            throw new RuntimeError(expr.paren, "expected " +
+                function.arity() + " arguments but got " +
+                args.size());
+        }
+
         return function.call(this, args);
     }
     // grouping node has a reference to an inner node...

@@ -25,10 +25,15 @@ class Parser {
         return statements;
     }
 
-    // declaration -> varDecl
+    // declaration -> funDecl
+    //                | varDecl
     //                | statement ;
     private Stmt declaration() {
         try {
+            // funDecl -> "fun" function ;
+            if (match(TokenType.FUN))
+                return function("function");
+            
             // `"var" `
             if (match(TokenType.VAR))
                 return varDeclaration();
@@ -38,6 +43,31 @@ class Parser {
             synchronize();
             return null;
         }
+    }
+
+    // function -> IDENTIFIER "(" parameters? ")" block ;
+    private Stmt.Function function(String kind) {
+        Token name = consume(TokenType.IDENTIFIER, "expected " + kind + "name");
+        consume(TokenType.LEFT_PAREN, "expected '(' after" + kind + " name");
+
+        // parameters -> IDENTIFIER ( "," IDENTIFIER )* ;
+        List<Token> params = new ArrayList<>();
+        if (!check(TokenType.RIGHT_PAREN)) {
+            do {
+                if (params.size() >= 255)
+                    error(peek(), "can't have more than 255 parameters");
+                
+                params.add(
+                    consume(TokenType.IDENTIFIER, "expected parameter name")
+                );
+            } while (match(TokenType.COMMA));
+        }
+
+        consume(TokenType.RIGHT_PAREN, "expected ')' after parameters");
+
+        consume(TokenType.LEFT_BRACE, "expected '{' before " + kind + " body");
+        List<Stmt> body = block();
+        return new Stmt.Function(name, params, body);
     }
 
     // varDecl -> IDENTIFIER ( "=" expression )? ";" ;
