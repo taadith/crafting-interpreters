@@ -1,2 +1,6 @@
 # ignore all class files generated from .java files
 *.class
+
+# ignoring all testing lox files!
+./java/lox-files
+./java/lox-files/*
