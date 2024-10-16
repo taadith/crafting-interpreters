@@ -32,8 +32,6 @@ class LoxFunction implements LoxCallable {
         
         // discards function-local env and restores the...
         // ... previous one that was active back at the callsite
-        interpreter.executeBlock(declaration.body, env);
-
         try {
             interpreter.executeBlock(declaration.body, env);
         } catch (Return returnValue) {
