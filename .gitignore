@@ -2,5 +2,4 @@
 *.class
 
 # ignoring all testing lox files!
-./java/lox-files
-./java/lox-files/*
+*.lox
