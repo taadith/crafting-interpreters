@@ -34,6 +34,12 @@ class LoxFunction implements LoxCallable {
         // ... previous one that was active back at the callsite
         interpreter.executeBlock(declaration.body, env);
 
+        try {
+            interpreter.executeBlock(declaration.body, env);
+        } catch (Return returnValue) {
+            return returnValue.value;
+        }
+
         return null;
     }
 }
