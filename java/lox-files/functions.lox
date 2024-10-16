@@ -2,6 +2,4 @@ fun sayHi(first, last) {
     print "Hi, " + first + " " + last + "!";
 }
 
-
-
 sayHi("Anya", "cutie");
