@@ -85,7 +85,8 @@ class Parser {
     // statement -> exprStatement
     //              | forStmt
     //              | ifStmt
-    //              | printStmt 
+    //              | printStmt
+    //              | returnStmt
     //              | whileStmt
     //              | block ;
     private Stmt statement() {
@@ -97,6 +98,9 @@ class Parser {
 
         if (match(TokenType.PRINT))
             return printStatement();
+        
+        if (match(TokenType.RETURN))
+            return returnStatement();
         
         if (match(TokenType.WHILE))
             return whileStatement();
@@ -190,6 +194,17 @@ class Parser {
         Expr value = expression();
         consume(TokenType.SEMICOLON, "expected ';' after value");
         return new Stmt.Print(value);
+    }
+
+    // returnStmt -> "return" expression? ";" ;
+    private Stmt returnStatement() {
+        Token keyword = previous();
+        Expr value = null;
+        if (!check(TokenType.SEMICOLON))
+            value = expression();
+        
+        consume(TokenType.SEMICOLON, "expected ';' after return value");
+        return new Stmt.Return(keyword, value);
     }
 
     // whileStmt -> "while" "(" expression ")" statement ;
