@@ -8,6 +8,10 @@ fun fib(n) {
     return fib(n - 2) + fib(n - 1);
 }
 
+fun scope(a) {
+    var a = "local";
+}
+
 fun main() {
     sayHi("Anya", "cutie");
     print fib(1);
