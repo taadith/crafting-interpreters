@@ -1,5 +1,7 @@
 LOX_DIR = ./com/craftinginterpreters/lox
 TOOL_DIR = ./com/craftinginterpreters/tool
+
+LOX_FILE_DIR = ../lox-files/
 LOX_FILE ?=
 
 .PHONY: all
@@ -18,6 +20,10 @@ tool: compile-tool run-tool
 .PHONY: run-lox
 run-lox:
 	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE)
+
+# .PHONY: run-lox-file
+# run-lox-file:
+# 	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE_DIR) $(LOX_FILE)
 
 .PHONY: run-tool
 run-tool:
