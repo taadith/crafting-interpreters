@@ -11,6 +11,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // only used for local block scopes
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+
+    // lexical scopes nest in both the interpreter and resolver...
+    // ...behaving like a stack
+    private void beginScope() {
+        scopes.push(new HashMap<String, Boolean>());
+    }
+
+    private void endScope() {
+        scopes.pop();
+    }
+
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
     }
@@ -24,16 +35,25 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         return null;
     }
 
-    // lexical scopes nest in both the interpreter and resolver...
-    // ...behaving like a stack
-    private void beginScope() {
-        scopes.push(new HashMap<String, Boolean>());
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        declare(stmt.name);
+        if (stmt.initializer != null)
+            resolve(stmt.initalizer);
+        define(stmt.name);
+        return null;
     }
 
-    private void endScope() {
-        scopes.pop();
+    // adds var to the innermost scope ...
+    // ... so that it shadows any outer one ...
+    // ... and so that we know the var exists
+    private void declare(Token name) {
+        if (scopes.isEmpty())
+            return;
+        
+        Map<String, Boolean> scope = scopes.peek();
+        scope.put(name.lexeme, false);
     }
-
     private void resolve(List<Stmt> stmts) {
         for (Stmt stmt : stmts)
             resolve(stmt);
