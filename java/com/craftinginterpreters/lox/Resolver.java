@@ -11,8 +11,16 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // only used for local block scopes
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+    // extend resolver to detect this statically
+    private FunctionType currentFunction = FunctionType.NONE;
+
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
+    }
+
+    private enum FunctionType {
+        NONE,
+        FUNCTION
     }
 
     // lexical scopes nest in both the interpreter and resolver...
@@ -58,7 +66,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         declare(stmt.name);
         define(stmt.name);
 
-        resolveFunction(stmt);
+        resolveFunction(stmt, FunctionType.FUNCTION);
 
         return null;
     }
@@ -72,6 +80,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitReturnStmt(Stmt.Return stmt) {
+        if (currentFunction == FunctionType.NONE)
+            Lox.error(stmt.keyword, "can't return from top-level code");
+        
         if (stmt.value != null)
             resolve(stmt.value);
         
@@ -159,6 +170,15 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitTernaryExpr(Expr.Ternary expr) {
+        resolve(expr.left);
+        resolve(expr.mid);
+        resolve(expr.right);
+
+        return null;
+    }
+
+    @Override
     public Void visitUnaryExpr(Expr.Unary expr) {
         resolve(expr.right);
         
@@ -173,6 +193,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
             return;
         
         Map<String, Boolean> scope = scopes.peek();
+        if (scope.containsKey(name.lexeme))
+            Lox.error(name, "already a variable with this name in this scope");
 
         // marking it as not ready yet
         scope.put(name.lexeme, false);
@@ -186,7 +208,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         scopes.peek().put(name.lexeme, true);
     }
     
-    private void resolve(List<Stmt> stmts) {
+    void resolve(List<Stmt> stmts) {
         for (Stmt stmt : stmts)
             resolve(stmt);
     }
@@ -195,11 +217,14 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         stmt.accept(this);
     }
 
-    private void resolve(Expr expr, int depth) {
-        locals.put(expr, depth);
+    private void resolve(Expr expr) {
+        expr.accept(this);
     }
-    
-    private void resolveFunction(Stmt.Function function) {
+
+    private void resolveFunction(Stmt.Function function, FunctionType type) {
+        FunctionType enclosingFunction = currentFunction;
+        currentFunction = type;
+
         // creates a new scope for the body
         beginScope();
         
@@ -213,6 +238,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         resolve(function.body);
 
         endScope();
+        currentFunction = enclosingFunction;
     }
 
     private void resolveLocal(Expr expr, Token name) {

@@ -324,6 +324,10 @@ class Interpreter implements Expr.Visitor<Object>,
         return expr.accept(this);
     }
 
+    void resolve(Expr expr, int depth) {
+        locals.put(expr, depth);
+    }
+
     private boolean isTruthy(Object obj) {
         if (obj == null)
             return false;
@@ -362,7 +366,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
     private Object lookUpVariable(Token name, Expr expr) {
         Integer distance = locals.get(expr);
-        if (distance != null);
+        if (distance != null)
             return env.getAt(distance, name.lexeme);
         else
             return globals.get(name);
