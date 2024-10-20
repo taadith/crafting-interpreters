@@ -23,6 +23,14 @@ class Environment {
         values.put(name, value);
     }
 
+    Environment ancestor(int distance) {
+        Environment env = this;
+        for (int i = 0; i < distance; i++)
+            env = env.enclosing;
+
+        return env;
+    }
+
     // looking up an existing variable
     Object get(Token name) {
         // if variable is found, return the value bound to it
@@ -36,6 +44,10 @@ class Environment {
         // important choice to make it a runtime error, not a syntax error or to simply allow for it
         throw new RuntimeError(name,
             "undefined variable '" + name.lexeme + "'");
+    }
+
+    Object getAt(int distance, String name) {
+        return ancestor(distance).values.get(name);
     }
 
     // not allowed to create a new variable
@@ -54,5 +66,9 @@ class Environment {
         // runtime error if key doesn't already exist in env's variable map
         throw new RuntimeError(name,
             "undefined variable '" + name.lexeme + "'");
+    }
+
+    void assignAt(int distance, Token name, Object value) {
+        ancestor(distance).values.put(name.lexeme, value);
     }
 }

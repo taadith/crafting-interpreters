@@ -116,7 +116,13 @@ class Interpreter implements Expr.Visitor<Object>,
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
         Object value = evaluate(expr.value);
-        env.assign(expr.name, value);
+        
+        Integer distance = locals.get(expr);
+        if (distance != null)
+            env.assignAt(distance, expr.name, value);
+        else
+            globals.assign(expr.name, value);
+
         return value;
     }
 
@@ -292,7 +298,7 @@ class Interpreter implements Expr.Visitor<Object>,
     // ... the heavy lifting of determine if the variable is defined
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
-        return env.get(expr.name);
+        return lookUpVariable(expr.name, expr);
     }
 
     void executeBlock(List<Stmt> stmts,
@@ -352,5 +358,13 @@ class Interpreter implements Expr.Visitor<Object>,
         }
 
         return obj.toString();
+    }
+
+    private Object lookUpVariable(Token name, Expr expr) {
+        Integer distance = locals.get(expr);
+        if (distance != null);
+            return env.getAt(distance, name.lexeme);
+        else
+            return globals.get(name);
     }
 }
