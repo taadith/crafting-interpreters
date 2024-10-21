@@ -8,7 +8,9 @@ import java.util.Stack;
 class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     private final Interpreter interpreter;
 
-    // only used for local block scopes
+    // keeps track of scopes currently "in scope"
+    // each element in the stack is a Map representing...
+    // ...a single block scope
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
     // extend resolver to detect this statically
@@ -49,7 +51,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         return null;
     }
 
-    // static analysis, so we resolve both branches
+    // static analysis, bc we are analyzing any branch...
+    // ... that can run so we have to resolve both branches
     @Override
     public Void visitIfStmt(Stmt.If stmt) {
         resolve(stmt.condition);
@@ -89,12 +92,19 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         return null;
     }
 
+    // binding is done in two steps...
+    // ...in order to handle funny edge cases
     @Override
     public Void visitVarStmt(Stmt.Var stmt) {
+        // ...(1) declaring
         declare(stmt.name);
+
         if (stmt.initializer != null)
             resolve(stmt.initializer);
+        
+        // ...(2) defining
         define(stmt.name);
+
         return null;
     }
 
@@ -115,19 +125,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         // resolve the variable that's being assigned to
         resolveLocal(expr, expr.name);
 
-        return null;
-    }
-
-    @Override
-    public Void visitVariableExpr(Expr.Variable expr) {
-        boolean declared_and_not_defined = !scopes.isEmpty() && 
-                            scopes.peek().get(expr.name.lexeme) == Boolean.FALSE;
-        if (declared_and_not_defined)
-            Lox.error(expr.name, "can't read local variable in its own initializer");
-        
-        // resolve the variable itself using this helper
-        resolveLocal(expr, expr.name);
-        
         return null;
     }
 
@@ -185,6 +182,22 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         return null;
     }
 
+    @Override
+    public Void visitVariableExpr(Expr.Variable expr) {
+        // variable exists in the current scope...
+        // ... but value is false (declared and not defined)
+        boolean not_defined = !scopes.isEmpty() &&
+                            scopes.peek().get(expr.name.lexeme) == Boolean.FALSE;
+        
+        if (not_defined)
+            Lox.error(expr.name, "can't read local variable in its own initializer");
+        
+        // resolve the variable itself using this helper
+        resolveLocal(expr, expr.name);
+        
+        return null;
+    }
+
     // adds var to the innermost scope ...
     // ... so that it shadows any outer one ...
     // ... and so that we know the var exists
@@ -194,9 +207,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         
         Map<String, Boolean> scope = scopes.peek();
         if (scope.containsKey(name.lexeme))
-            Lox.error(name, "already a variable with this name in this scope");
+            Lox.error(name, "a variable with this name already exists in this scope");
 
-        // marking it as not ready yet
+        // marking variable as not ready yet by...
+        // ...binding its name to false in the scope map
         scope.put(name.lexeme, false);
     }
 
@@ -242,7 +256,9 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     private void resolveLocal(Expr expr, Token name) {
+        // start at the innermost scope and work outwards
         for (int i = scopes.size() - 1; i >= 0; i--) {
+            // look in each map for a matching name
             if (scopes.get(i).containsKey(name.lexeme)) {
                 interpreter.resolve(expr, scopes.size() - 1 - i);
                 return;

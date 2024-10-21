@@ -295,7 +295,7 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     // forwards to the environment, which does...
-    // ... the heavy lifting of determine if the variable is defined
+    // ... the heavy lifting of determining if the variable is defined
     @Override
     public Object visitVariableExpr(Expr.Variable expr) {
         return lookUpVariable(expr.name, expr);
