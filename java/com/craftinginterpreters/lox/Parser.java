@@ -25,16 +25,21 @@ class Parser {
         return statements;
     }
 
-    // declaration -> funDecl
+    // declaration -> classDecl
+    //                | funDecl
     //                | varDecl
     //                | statement ;
     private Stmt declaration() {
         try {
+            // ` "class" `
+            if (match(TokenType.CLASS))
+                return classDeclaration();
+                
             // funDecl -> "fun" function ;
             if (match(TokenType.FUN))
                 return function("function");
             
-            // `"var" `
+            // ` "var" `
             if (match(TokenType.VAR))
                 return varDeclaration();
             
@@ -43,6 +48,23 @@ class Parser {
             synchronize();
             return null;
         }
+    }
+
+    // classDecl -> "class" IDENTIFIER "{" function* "}";
+    private Stmt classDeclaration() {
+        // `IDENTIFIER "{"`
+        Token name = consume(TokenType.IDENTIFIER, "expected class name");
+        consume(TokenType.LEFT_BRACE, "expected '{' before class body");
+
+        // ` function* `
+        List<Stmt.Function> methods = new ArrayList<>();
+        while (!check(TokenType.RIGHT_BRACE) && !isAtEnd())
+            methods.add(function("method"));
+        
+        // ` "}" `
+        consume(TokenType.RIGHT_BRACE, "expected");
+
+        return new Stmt.Class(name, methods);
     }
 
     // function -> IDENTIFIER "(" parameters? ")" block ;
