@@ -55,13 +55,26 @@ class Interpreter implements Expr.Visitor<Object>,
         // declaring class's name in current env
         env.define(stmt.name.lexeme, null);
 
-        // turn the class syntax node into a LoxClass
+        // turn class syntax node into a LoxClass...
+        // ... (the runtime representation of a class)
         LoxClass klass = new LoxClass(stmt.name.lexeme);
 
         // store class object in previously defined variable
         env.assign(stmt.name, klass);
 
         return null;
+    }
+
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        // evaluate the expression whose property is being accessed
+        Object obj = evaluate(expr.object);
+
+        // look up the property
+        if (obj instanceof LoxInstance)
+            return ((LoxInstance) obj).get(expr.name);
+        
+        throw new RuntimeError(expr.name, "only instances have properties");
     }
 
     @Override

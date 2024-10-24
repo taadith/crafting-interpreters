@@ -3,7 +3,7 @@ package com.craftinginterpreters.lox;
 import java.util.List;
 import java.util.Map;
 
-class LoxClass {
+class LoxClass implements LoxCallable{
     final String name;
 
     LoxClass(String name) {
@@ -13,5 +13,18 @@ class LoxClass {
     @Override
     public String toString() {
         return name;
+    }
+
+    // calling a class instantiates a new LoxInstance...
+    // ...for the called class and returns it
+    @Override
+    public Object call(Interpreter interpreter, List<Object> args) {
+        LoxInstance instance = new LoxInstance(this);
+        return instance;
+    }
+
+    @Override
+    public int arity() {
+        return 0;
     }
 }
