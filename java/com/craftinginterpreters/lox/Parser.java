@@ -258,7 +258,7 @@ class Parser {
         return assignment();
     }
 
-    // assignment -> IDENTIFIER "=" assignment
+    // assignment -> ( call "." )? IDENTIFIER "=" assignment
     //               | logic_or ;
     private Expr assignment() {
         Expr expr = or();
@@ -270,6 +270,10 @@ class Parser {
             if (expr instanceof Expr.Variable) {
                 Token name = ((Expr.Variable) expr).name;
                 return new Expr.Assign(name, value);
+            }
+            else if (expr instanceof Expr.Get) {
+                Expr.Get get = (Expr.Get) expr;
+                return new Expr.Set(get.object, get.name, value);
             }
 
             error(equals, "invalid assignment target");
@@ -479,6 +483,7 @@ class Parser {
 
     // primary -> "false" | "true" | "nil"
     //            | NUMBER | STRING
+    //            | "this"
     //            | IDENTIFIER
     //            | "(" expression ")" ;
     private Expr primary() {
@@ -491,6 +496,9 @@ class Parser {
 
         if (match(TokenType.NUMBER, TokenType.STRING))
             return new Expr.Literal(previous().literal);
+        
+        if (match(TokenType.THIS))
+            return new Expr.This(previous());
         
         if (match(TokenType.IDENTIFIER))
             return new Expr.Variable(previous());

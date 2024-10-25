@@ -55,26 +55,21 @@ class Interpreter implements Expr.Visitor<Object>,
         // declaring class's name in current env
         env.define(stmt.name.lexeme, null);
 
+        // turning method declarations into a LoxFunction object (runtime representation)
+        Map<String, LoxFunction> methods = new HashMap<>();
+        for (Stmt.Function method : stmt.methods) {
+            LoxFunction function = new LoxFunction(method, env);
+            methods.put(method.name.lexeme, function);
+        }
+
         // turn class syntax node into a LoxClass...
         // ... (the runtime representation of a class)
-        LoxClass klass = new LoxClass(stmt.name.lexeme);
+        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
 
         // store class object in previously defined variable
         env.assign(stmt.name, klass);
 
         return null;
-    }
-
-    @Override
-    public Object visitGetExpr(Expr.Get expr) {
-        // evaluate the expression whose property is being accessed
-        Object obj = evaluate(expr.object);
-
-        // look up the property
-        if (obj instanceof LoxInstance)
-            return ((LoxInstance) obj).get(expr.name);
-        
-        throw new RuntimeError(expr.name, "only instances have properties");
     }
 
     @Override
@@ -254,6 +249,19 @@ class Interpreter implements Expr.Visitor<Object>,
 
         return function.call(this, args);
     }
+    
+    @Override
+    public Object visitGetExpr(Expr.Get expr) {
+        // evaluate the expression whose property is being accessed
+        Object obj = evaluate(expr.object);
+
+        // look up the property
+        if (obj instanceof LoxInstance)
+            return ((LoxInstance) obj).get(expr.name);
+        
+        throw new RuntimeError(expr.name, "only instances have properties");
+    }
+
     // grouping node has a reference to an inner node...
     // ... for the expression contained w/in the "()"
     @Override
@@ -285,6 +293,23 @@ class Interpreter implements Expr.Visitor<Object>,
     }
 
     @Override
+    public Object visitSetExpr(Expr.Set expr) {
+        Object obj = evaluate(expr.object);
+
+        // error if obj isn't LoxInstance
+        if (!(obj instanceof LoxInstance))
+            throw new RuntimeError(expr.name, "only instances have fields");
+        
+        // evaluate the value being set...
+        Object value = evaluate(expr.value);
+
+        // ...and store it on the instance
+        ((LoxInstance)obj).set(expr.name, value);
+
+        return value;
+    }
+
+    @Override
     public Object visitTernaryExpr(Expr.Ternary expr) {
         Object left = evaluate(expr.left);
         Object mid = evaluate(expr.mid);
@@ -298,6 +323,11 @@ class Interpreter implements Expr.Visitor<Object>,
 
         // unreachable (?)
         return null;
+    }
+    
+    @Override
+    public Object visitThisExpr(Expr.This expr) {
+        return lookUpVariable(expr.keyword, expr);
     }
     
     @Override

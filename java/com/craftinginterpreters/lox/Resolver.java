@@ -13,16 +13,24 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // ...a single block scope
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+    private enum FunctionType {
+        NONE,
+        FUNCTION,
+        METHOD
+    }
+
+    private enum ClassType {
+        NONE,
+        CLASS
+    }
+
+    private ClassType currentClass = ClassType.NONE;
+
     // extend resolver to detect this statically
     private FunctionType currentFunction = FunctionType.NONE;
 
     Resolver(Interpreter interpreter) {
         this.interpreter = interpreter;
-    }
-
-    private enum FunctionType {
-        NONE,
-        FUNCTION
     }
 
     // lexical scopes nest in both the interpreter and resolver...
@@ -47,9 +55,25 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+
         declare(stmt.name);
         define(stmt.name);
+
+        beginScope();
+        scopes.peek().put("this", true);
+
+        // iterate thru methods in class body
+        for (Stmt.Function method : stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            resolveFunction(method, declaration);
+        }
+
+        endScope();
         
+        currentClass = enclosingClass;
+
         return null;
     }
 
@@ -61,8 +85,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
-    public Void visitGetExpr(Expr.Get expr) {
-        resolve(expr.object);
+    public Void visitFunctionStmt(Stmt.Function stmt) {
+        declare(stmt.name);
+        define(stmt.name);
+
+        resolveFunction(stmt, FunctionType.FUNCTION);
+
         return null;
     }
     
@@ -75,16 +103,6 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
         if (stmt.elseBranch != null)
             resolve(stmt.elseBranch);
-
-        return null;
-    }
-
-    @Override
-    public Void visitFunctionStmt(Stmt.Function stmt) {
-        declare(stmt.name);
-        define(stmt.name);
-
-        resolveFunction(stmt, FunctionType.FUNCTION);
 
         return null;
     }
@@ -162,6 +180,12 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     }
 
     @Override
+    public Void visitGetExpr(Expr.Get expr) {
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
     public Void visitGroupingExpr(Expr.Grouping expr) {
         resolve(expr.expression);
 
@@ -186,6 +210,18 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
         resolve(expr.left);
         resolve(expr.mid);
         resolve(expr.right);
+
+        return null;
+    }
+
+    @Override
+    public Void visitThisExpr(Expr.This expr) {
+        if (currentClass == ClassType.NONE) {
+            Lox.error(expr.keyword, 
+                "can't use 'this' outside of a class");
+            return null;
+        }
+        resolveLocal(expr, expr.keyword);
 
         return null;
     }

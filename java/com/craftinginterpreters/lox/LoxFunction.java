@@ -12,11 +12,6 @@ class LoxFunction implements LoxCallable {
     }
 
     @Override
-    public String toString() {
-        return "<fn " + declaration.name.lexeme + ">";
-    }
-
-    @Override
     public int arity() {
         return declaration.params.size();
     }
@@ -41,5 +36,21 @@ class LoxFunction implements LoxCallable {
         }
 
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "<fn " + declaration.name.lexeme + ">";
+    }
+
+    LoxFunction bind(LoxInstance instance) {
+        // new env nested inside the method's original closure...
+        // ...sort of a closure w/in a closure
+        Environment env = new Environment(closure);
+
+        // declare "this" as a var in that env and bind it to...
+        // ...given instance
+        env.define("this", instance);
+        return new LoxFunction(declaration, env);
     }
 }
