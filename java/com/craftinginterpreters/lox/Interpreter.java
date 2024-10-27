@@ -58,7 +58,10 @@ class Interpreter implements Expr.Visitor<Object>,
         // turning method declarations into a LoxFunction object (runtime representation)
         Map<String, LoxFunction> methods = new HashMap<>();
         for (Stmt.Function method : stmt.methods) {
-            LoxFunction function = new LoxFunction(method, env);
+            LoxFunction function = new LoxFunction(
+                method, env, 
+                method.name.lexeme.equals("init")
+            );
             methods.put(method.name.lexeme, function);
         }
 
@@ -80,8 +83,9 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Void visitFunctionStmt(Stmt.Function stmt) {
-        // capture the env in which function is declared, not called
-        LoxFunction function = new LoxFunction(stmt, env);
+        // capture the env in which function is declared, not called...
+        // ... also for actual function declarations `isInitializer`
+        LoxFunction function = new LoxFunction(stmt, env, false);
 
         env.define(stmt.name.lexeme, function);
         return null;
