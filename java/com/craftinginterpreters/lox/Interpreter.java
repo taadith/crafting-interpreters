@@ -52,6 +52,13 @@ class Interpreter implements Expr.Visitor<Object>,
 
     @Override
     public Void visitClassStmt(Stmt.Class stmt) {
+        Object superclass = null;
+        if (stmt.superclass != null) {
+            superclass = evaluate(stmt.superclass);
+
+            if (!(superclass instanceof LoxClass))
+                throw new RuntimeError(stmt.superclass.name, "superclass must be a class");
+        }
         // declaring class's name in current env
         env.define(stmt.name.lexeme, null);
 
@@ -67,7 +74,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
         // turn class syntax node into a LoxClass...
         // ... (the runtime representation of a class)
-        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+        LoxClass klass = new LoxClass(stmt.name.lexeme, (LoxClass)superclass, methods);
 
         // store class object in previously defined variable
         env.assign(stmt.name, klass);

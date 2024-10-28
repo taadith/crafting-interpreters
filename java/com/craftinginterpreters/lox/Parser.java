@@ -50,10 +50,20 @@ class Parser {
         }
     }
 
-    // classDecl -> "class" IDENTIFIER "{" function* "}";
+    // classDecl -> "class" IDENTIFIER ( "<" IDENTIFIER )?
+    //              "{" function* "}";
     private Stmt classDeclaration() {
-        // `IDENTIFIER "{"`
+        // `IDENTIFIER`
         Token name = consume(TokenType.IDENTIFIER, "expected class name");
+
+        // `( "<" IDENTIFIER )?`
+        Expr.Variable superclass = null;
+        if (match(TokenType.LESS)) {
+            consume(TokenType.IDENTIFIER, "expected superclass name");
+            superclass = new Expr.Variable(previous());
+        }
+
+        // `"{"`
         consume(TokenType.LEFT_BRACE, "expected '{' before class body");
 
         // ` function* `
@@ -64,7 +74,7 @@ class Parser {
         // ` "}" `
         consume(TokenType.RIGHT_BRACE, "expected");
 
-        return new Stmt.Class(name, methods);
+        return new Stmt.Class(name, superclass, methods);
     }
 
     // function -> IDENTIFIER "(" parameters? ")" block ;
