@@ -15,7 +15,8 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     private enum ClassType {
         NONE,
-        CLASS
+        CLASS,
+        SUBCLASS
     }
 
     private enum FunctionType {
@@ -66,8 +67,13 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
                 stmt.name.lexeme.equals(stmt.superclass.name))
             Lox.error(stmt.superclass.name, "a class can't inherit from itself");
 
-        if (stmt.superclass != null)
+        if (stmt.superclass != null) {
+            // we know it has a superclass...
+            // ... so this is a subclass
+            currentClass = ClassType.SUBCLASS;
+
             resolve(stmt.superclass);
+        }
         
         // if class declaration has a superclass...
         // ... then a new scope is created surrounding...
@@ -254,10 +260,17 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 
     @Override
     public Void visitSuperExpr(Expr.Super expr) {
+        if (currentClass == ClassType.NONE)
+            Lox.error(expr.keyword, 
+                "can't use 'super' outside of a class");
+        else if (currentClass != ClassType.SUBCLASS)
+            Lox.error(expr.keyword, 
+                "can't use 'super' in a class w/ no superclass");
+        
         // resolve the super token exactly...
         // ... as if it were a variable
         resolveLocal(expr, expr.keyword);
-        
+
         return null;
     }
 
