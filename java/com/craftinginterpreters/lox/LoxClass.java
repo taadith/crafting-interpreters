@@ -17,6 +17,11 @@ class LoxClass implements LoxCallable{
     LoxFunction findMethod(String name) {
         if (methods.containsKey(name))
             return methods.get(name);
+
+        // recurse up the superclass chain...
+        // ... to loop for the method def
+        if (superclass != null)
+            return superclass.findMethod(name);
         
         return null;
     }

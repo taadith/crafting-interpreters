@@ -13,16 +13,16 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
     // ...a single block scope
     private final Stack<Map<String, Boolean>> scopes = new Stack<>();
 
+    private enum ClassType {
+        NONE,
+        CLASS
+    }
+
     private enum FunctionType {
         NONE,
         FUNCTION,
         INITIALIZER,
         METHOD
-    }
-
-    private enum ClassType {
-        NONE,
-        CLASS
     }
 
     private ClassType currentClass = ClassType.NONE;
