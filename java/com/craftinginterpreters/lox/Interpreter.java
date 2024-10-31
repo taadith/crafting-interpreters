@@ -44,6 +44,15 @@ class Interpreter implements Expr.Visitor<Object>,
         }
     }
 
+    public void interpret1(Expr expr) {
+        try {
+            evaluate(expr);
+        }
+        catch(RuntimeError error) {
+            Lox.runtimeError(error);
+        }
+    }
+
     @Override
     public Void visitBlockStmt(Stmt.Block stmt) {
         executeBlock(stmt.statements, new Environment(env));

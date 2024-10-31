@@ -25,6 +25,14 @@ class Parser {
         return statements;
     }
 
+    Expr parse1() {
+        try {
+          return expression();
+        } catch (ParseError error) {
+          return null;
+        }
+      }
+
     // declaration -> classDecl
     //                | funDecl
     //                | varDecl

@@ -66,17 +66,19 @@ public class Lox {
     }
 
     private static void run(String src) {
+        // (1) scanning
         Scanner scanner = new Scanner(src);
         List<Token> tokens = scanner.scanTokens();
-        Parser parser = new Parser(tokens);
 
-        
+        // (2) parsing
+        Parser parser = new Parser(tokens);
         List<Stmt> stmts = parser.parse();
 
         // stop if there's a syntax error
         if (hadError)
             return;
         
+        // (3) resolving
         Resolver resolver = new Resolver(interpreter);
         resolver.resolve(stmts);
 
@@ -84,6 +86,8 @@ public class Lox {
         if (hadError)
             return;
         
+        // (4) lastly, but not the least of all...
+        // ... interpreting
         interpreter.interpret(stmts);
     }
 

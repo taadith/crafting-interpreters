@@ -1,49 +1,65 @@
+CC = clang
+CC_CHECK_FLAGS = -fsyntax-only
+
 LOX_DIR = ./com/craftinginterpreters/lox
 TOOL_DIR = ./com/craftinginterpreters/tool
 
 LOX_FILE_DIR = ../lox-files/
 LOX_FILE ?=
 
-.PHONY: all
-all: tool lox
+.PHONY: clox
+clox: check-clox compile-clox run-clox
 
-.PHONY: ast-printer
-ast-printer: tool compile-lox
-	cd ./java && java com.craftinginterpreters.lox.AstPrinter
+.PHONY: jlox
+jlox: compile-jlox run-jlox
 
-.PHONY: lox
-lox: compile-lox run-lox
+.PHONY: jlox-tool
+jlox-tool: compile-jlox-tool run-jlox-tool
 
-.PHONY: tool
-tool: compile-tool run-tool
+.PHONY: run-clox
+run-clox:
+	./c/main
 
-.PHONY: run-lox
-run-lox:
+.PHONY: run-jlox
+run-jlox:
 	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE)
 
 # .PHONY: run-lox-file
 # run-lox-file:
 # 	cd ./java && java com.craftinginterpreters.lox.Lox $(LOX_FILE_DIR) $(LOX_FILE)
 
-.PHONY: run-tool
-run-tool:
+.PHONY: run-jlox-tool
+run-jlox-tool:
 	cd ./java && java com.craftinginterpreters.tool.GenerateAst $(LOX_DIR)
 
-.PHONY: compile-tool
-compile-tool:
+.PHONY: compile-clox
+compile-clox:
+	cd ./c && $(CC) -o main main.c
+
+.PHONY: compile-jlox-tool
+compile-jlox-tool:
 	cd ./java && javac $(TOOL_DIR)/*.java
 
-.PHONY: compile-lox
-compile-lox:
+.PHONY: compile-jlox
+compile-jlox:
 	cd ./java && javac $(LOX_DIR)/*.java
 
-.PHONY: clean
-clean: clean-tool clean-lox
+.PHONY: check-clox
+check-clox:
+	cd ./c && $(CC) chunk.c $(CC_CHECK_FLAGS)
+	cd ./c && $(CC) main.c $(CC_CHECK_FLAGS)
 
-.PHONY: clean-lox
-clean-lox:
+.PHONY: clean-clox
+clean-clox:
+	rm -f ./c/main
+
+.PHONY: clean-jlox-tool
+clean-jlox-tool: clean-jlox-tool clean-lox
+
+.PHONY: clean-jlox
+clean-jlox:
 	rm -f java/$(LOX_DIR)/*.class
 
-.PHONY: clean-tool
-clean-tool:
+.PHONY: clean-jlox-tool
+clean-jlox-tool:
 	rm -f java/$(TOOL_DIR)/*.class
