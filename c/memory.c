@@ -10,6 +10,8 @@ void* reallocate(void* ptr, size_t oldSize, size_t newSize) {
     }
 
     // handles all other cases!
+    // tries to change the size of the allocation...
+    // ... pointed to by ptr and returns ptr
     void* result = realloc(ptr, newSize);
 
     // failed allocation
