@@ -9,6 +9,7 @@ void initChunk(Chunk* chunk) {
     chunk -> capacity = 0;
     chunk -> code = NULL;
     chunk -> lines = NULL;
+    initRunLengthEncoding(&chunk -> rle);
     initValueArray(&chunk -> constants);
 }
 
@@ -18,6 +19,8 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
 
         // double capacity (or set to 8)
         chunk -> capacity = GROW_CAPACITY(oldCapacity);
+
+        // double size of arrays (or set to 8)
         chunk -> code = GROW_ARRAY(uint8_t, chunk -> code,
                                    oldCapacity, chunk -> capacity);
         chunk -> lines = GROW_ARRAY(int, chunk -> lines,
@@ -26,16 +29,14 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
 
     chunk -> code[chunk -> count] = byte;
     chunk -> lines[chunk -> count] = line;
+    writeRunLengthEncoding(&chunk -> rle, line);
     chunk -> count++;
-}
-
-int getLine() {
-    return 0;
 }
 
 void freeChunk(Chunk* chunk) {
     FREE_ARRAY(uint8_t, chunk -> code, chunk -> capacity);
     FREE_ARRAY(int, chunk -> lines, chunk -> capacity);
+    freeRunLengthEncoding(&chunk -> rle);
     freeValueArray(&chunk -> constants);
     
     // zeroing out the values
