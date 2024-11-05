@@ -5,7 +5,12 @@
 
 // creates a RLE
 void initRunLengthEncoding(RunLengthEncoding* rle) {
+    rle -> count = 0;
+    rle -> capacity = 0;
 
+    rle -> multiple = NULL;
+    rle -> data = NULL;
+    rle -> totalData = 0;
 }
 
 // writes new data to the RLE
