@@ -3,3 +3,6 @@
 
 # ignoring all testing lox files!
 *.lox
+
+#ignore c binary file
+./c/main
