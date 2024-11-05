@@ -2,6 +2,10 @@
 #include "chunk.h"
 #include "debug.h"
 
+void testRunLengthEncoding() {
+    
+}
+
 void testChunk() {
     Chunk chunk;
     initChunk(&chunk);
