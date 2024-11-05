@@ -16,7 +16,28 @@ void initRunLengthEncoding(RunLengthEncoding* rle) {
 
 // writes new data to the RLE
 void writeRunLengthEncoding(RunLengthEncoding* rle, int newData) {
+    // RLE cannot add new data
+    if (rle -> capacity < rle -> count + 1) {
+        int oldCapacity = rle -> capacity;
 
+        // double capacity (or set to 8)
+        rle -> capacity = GROW_CAPACITY(oldCapacity);
+
+        // double size of arrays (or set to 8)
+        rle -> multiple = GROW_ARRAY(int, rle -> multiple,
+                                   oldCapacity, rle -> capacity);
+        rle -> data = GROW_ARRAY(int, rle -> data,
+                                    oldCapacity, rle -> capacity);
+    }
+
+    rle -> multiple[rle -> count] = 1;
+    rle -> data[rle -> count] = newData;
+    rle -> totalData++;
+
+    if (rle -> count > 0 && rle -> data[rle -> count] == rle -> data[(rle -> count) - 1])
+        rle -> multiple[(rle -> count) - 1]++;
+    else
+        rle -> count++;
 }
 
 // frees the RLE
