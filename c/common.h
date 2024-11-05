@@ -5,4 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// dynamic debugging is enabled for VM
+#define DEBUG_TRACE_EXECUTION
+
 #endif
