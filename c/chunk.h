@@ -2,6 +2,7 @@
 #define clox_chunk_h
 
 #include "common.h"
+#include "rle.h"
 #include "value.h"
 
 // each instruction has one-byte operation code (opcode)
@@ -18,6 +19,7 @@ typedef struct {
     int capacity;
     uint8_t* code;
     int* lines;
+    RunLengthEncoding rle;
     ValueArray constants;
 } Chunk;
 
