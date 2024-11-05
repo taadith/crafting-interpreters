@@ -18,7 +18,6 @@ typedef struct {
     int count;
     int capacity;
     uint8_t* code;
-    int* lines;
     RunLengthEncoding rle;
     ValueArray constants;
 } Chunk;
