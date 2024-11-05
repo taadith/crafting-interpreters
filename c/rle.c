@@ -20,7 +20,11 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int newData) {
 
 // frees the RLE
 void freeRunLengthEncoding(RunLengthEncoding* rle) {
+    FREE_ARRAY(int, rle -> multiple, rle -> capacity);
+    FREE_ARRAY(int, rle -> data, rle -> capacity);
 
+    // zeroing out the values
+    initRunLengthEncoding(rle);
 }
 
 // prints out the RLE
