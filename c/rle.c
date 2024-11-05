@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "rle.h"
 #include "memory.h"
@@ -29,5 +30,6 @@ void freeRunLengthEncoding(RunLengthEncoding* rle) {
 
 // prints out the RLE
 void printRunLengthEncoding(RunLengthEncoding* rle) {
-
+    for(int i = 0; i < rle -> count; i++)
+        printf("%d x %d\n", rle -> multiple[i], rle -> data[i]);
 }
