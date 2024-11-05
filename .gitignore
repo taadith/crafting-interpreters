@@ -5,4 +5,4 @@
 *.lox
 
 #ignore c binary file
-./c/main
+*main
