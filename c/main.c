@@ -36,7 +36,7 @@ void testVM() {
 
     writeChunk(&chunk, OP_RETURN, 123);
 
-    disassembleChunk(&chunk, "test chunk");
+    // disassembleChunk(&chunk, "test chunk");
 
     // VM springs into action for interpreting...
     // ... a chunk of bytecode
