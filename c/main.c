@@ -24,9 +24,8 @@ void testRunLengthEncoding() {
 
 void testVM() {
     printf("started VM test...\n");
-
-    VM vm;
-    initVM(&vm);
+    
+    initVM();
 
     Chunk chunk;
     initChunk(&chunk);
@@ -41,9 +40,9 @@ void testVM() {
 
     // VM springs into action for interpreting...
     // ... a chunk of bytecode
-    interpret(&vm);
+    interpret(&chunk);
 
-    freeVM(&vm);
+    freeVM();
 
     freeChunk(&chunk);
     

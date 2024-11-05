@@ -1,11 +1,13 @@
 #include "common.h"
 #include "vm.h"
 
-void initVM(VM* vm) {
+VM vm;
+
+void initVM() {
 
 }
 
-void freeVM(VM* vm) {
+void freeVM() {
 
 }
 
@@ -24,11 +26,11 @@ static InterpretResult run() {
 #undef READ_BYTE
 }
 
-InterpretResult interpret(VM* vm, Chunk* ch) {
-    vm -> chunk = ch;
+InterpretResult interpret(Chunk* ch) {
+    vm.chunk = ch;
 
     // ip pts to the first byte of code in the chunk
     // ip pts to the instruction abt to be executed
-    vm -> ip = vm -> chunk -> code;
+    vm.ip = vm.chunk -> code;
     return run();
 }
