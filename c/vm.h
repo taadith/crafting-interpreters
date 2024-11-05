@@ -7,7 +7,7 @@ typedef struct {
     Chunk* chunk;
 } VM;
 
-void initVM();
-void freeVM();
+void initVM(VM* vm);
+void freeVM(VM* vm);
 
 #endif
