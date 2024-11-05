@@ -10,4 +10,16 @@ typedef struct {
     int totalData;
 } RunLengthEncoding;
 
+// creates a RLE
+void initRunLengthEncoding(RunLengthEncoding* rle);
+
+// writes new data to the RLE
+void writeRunLengthEncoding(RunLengthEncoding* rle, int newData);
+
+// frees the RLE
+void freeRunLengthEncoding(RunLengthEncoding* rle);
+
+// prints out the RLE
+void printRunLengthEncoding(RunLengthEncoding* rle);
+
 #endif
