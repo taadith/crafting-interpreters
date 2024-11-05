@@ -4,6 +4,7 @@
 #include "chunk.h"
 #include "rle.h"
 #include "debug.h"
+#include "vm.h"
 
 void testRunLengthEncoding() {
     printf("starting RunLengthEncoding test...\n");
@@ -21,8 +22,11 @@ void testRunLengthEncoding() {
     printf("... completed RunLengthEncoding test\n\n");
 }
 
-void testChunk() {
-    printf("started Chunk test...\n");
+void testVM() {
+    printf("started VM test...\n");
+
+    VM vm;
+    initVM(&vm);
 
     Chunk chunk;
     initChunk(&chunk);
@@ -35,13 +39,19 @@ void testChunk() {
 
     disassembleChunk(&chunk, "test chunk");
 
+    // VM springs into action for interpreting...
+    // ... a chunk of bytecode
+    interpret(&vm);
+
+    freeVM(&vm);
+
     freeChunk(&chunk);
     
-    printf("... completed Chunk test\n");
+    printf("... completed VM test\n");
 }
 
 int main(int argc, const char* argv[]) {
     testRunLengthEncoding();
-    testChunk();
+    testVM();
     return 0;
 }
