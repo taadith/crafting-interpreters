@@ -1,6 +1,8 @@
 #ifndef clox_rle_h
 #define clox_rle_h
 
+#include "common.h"
+
 typedef struct {
     int count;
     int capacity;
