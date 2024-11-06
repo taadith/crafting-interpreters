@@ -6,8 +6,13 @@
 
 VM vm;
 
-void initVM() {
+static void resetStack() {
+    // set stackTop to stack[0]
+    vm.stackTop = vm.stack;
+}
 
+void initVM() {
+    resetStack();
 }
 
 void freeVM() {
