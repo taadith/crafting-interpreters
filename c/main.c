@@ -30,15 +30,25 @@ void testVM() {
     Chunk chunk;
     initChunk(&chunk);
 
-    int constant = addConstant(&chunk, 1.2);
+    int constant = addConstant(&chunk, 1);
     writeChunk(&chunk, OP_CONSTANT, 1);
     writeChunk(&chunk, constant, 2);
 
-    writeChunk(&chunk, OP_NEGATE, 3);
-    
-    writeChunk(&chunk, OP_RETURN, 3);
+    constant = addConstant(&chunk, 2);
+    writeChunk(&chunk, OP_CONSTANT, 2);
+    writeChunk(&chunk, constant, 3);
 
-    // disassembleChunk(&chunk, "test chunk");
+    writeChunk(&chunk, OP_ADD, 4);
+
+    constant = addConstant(&chunk, 3);
+    writeChunk(&chunk, OP_CONSTANT, 4);
+    writeChunk(&chunk, constant, 5);
+
+    writeChunk(&chunk, OP_DIVIDE, 6);
+
+    writeChunk(&chunk, OP_NEGATE, 7);
+    
+    writeChunk(&chunk, OP_RETURN, 8);
 
     // VM springs into action for interpreting...
     // ... a chunk of bytecode
