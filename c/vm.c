@@ -15,9 +15,7 @@ void initVM() {
     resetStack();
 }
 
-void freeVM() {
-
-}
+void freeVM() {}
 
 static InterpretResult run() {
 // reads current byte pointed at by ip...
@@ -33,6 +31,16 @@ static InterpretResult run() {
 
 // dynamic debugging if flag is defined
 #ifdef DEBUG_TRACE_EXECUTION
+        printf("\t\t");
+        
+        // print each value in the array
+        for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+            printf("[ ");
+            printValue(*slot);
+            printf(" ]");
+        }
+        printf("\n");
+
         disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk -> code));
 #endif
 
@@ -40,12 +48,18 @@ static InterpretResult run() {
         uint8_t instruction;
         switch(instruction = READ_BYTE()) {
             case OP_CONSTANT: {
+                // constant gets pushed to the stack
                 Value constant = READ_CONSTANT();
-                printValue(constant);
-                printf("\n");
+                push(constant);
+
                 break;
             }
             case OP_RETURN: {
+                // return pops the stack and prints...
+                // ... the top value before exiting
+                printValue(pop());
+                printf("\n");
+
                 return INTERPRET_OK;
             }
         }
@@ -62,4 +76,22 @@ InterpretResult interpret(Chunk* ch) {
     // ip pts to the instruction abt to be executed
     vm.ip = vm.chunk -> code;
     return run();
+}
+
+void push(Value value) {
+    // set stackTop location to new value
+    *(vm.stackTop) = value;
+
+    // move the stackTop just...
+    // ... past the last item
+    vm.stackTop++;
+}
+
+Value pop() {
+    // move stack top down
+    vm.stackTop--;
+
+    // return item where stack top moved too...
+    // ... bc its just past the last item
+    return *(vm.stackTop);
 }

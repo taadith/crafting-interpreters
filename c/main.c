@@ -30,11 +30,13 @@ void testVM() {
     Chunk chunk;
     initChunk(&chunk);
 
-    int constant = addConstant(&chunk, 1.2);
-    writeChunk(&chunk, OP_CONSTANT, 123);
-    writeChunk(&chunk, constant, 123);
-
-    writeChunk(&chunk, OP_RETURN, 123);
+    for(int i = 1; i < 6; i++) {
+        int constant = addConstant(&chunk, i);
+        writeChunk(&chunk, OP_CONSTANT, i);
+        writeChunk(&chunk, constant, i);
+    }
+    
+    writeChunk(&chunk, OP_RETURN, 6);
 
     // disassembleChunk(&chunk, "test chunk");
 
@@ -46,11 +48,11 @@ void testVM() {
 
     freeChunk(&chunk);
     
-    printf("... completed VM test\n");
+    printf("\n... completed VM test\n");
 }
 
 int main(int argc, const char* argv[]) {
-    testRunLengthEncoding();
+    // testRunLengthEncoding();
     testVM();
     return 0;
 }
