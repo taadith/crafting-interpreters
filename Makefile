@@ -1,7 +1,7 @@
 CC = clang
 CC_CHECK_FLAGS = -fsyntax-only
 
-C_FILES = main.c chunk.c debug.c memory.c value.c rle.c
+C_FILES = main.c chunk.c debug.c memory.c rle.c value.c vm.c
 
 LOX_DIR = ./com/craftinginterpreters/lox
 TOOL_DIR = ./com/craftinginterpreters/tool
