@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "compiler.h"
 #include "debug.h"
 #include "vm.h"
 
@@ -100,13 +101,9 @@ static InterpretResult run() {
 #undef BINARY_OP
 }
 
-InterpretResult interpret(Chunk* ch) {
-    vm.chunk = ch;
-
-    // ip pts to the first byte of code in the chunk
-    // ip pts to the instruction abt to be executed
-    vm.ip = vm.chunk -> code;
-    return run();
+InterpretResult interpret(const char* src) {
+    compile(src);
+    return INTERPRET_OK;
 }
 
 void push(Value value) {
