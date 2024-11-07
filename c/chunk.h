@@ -10,6 +10,7 @@
 // instruction is being dealt w/
 typedef enum {
     OP_CONSTANT,
+    OP_NEGATE,
     OP_RETURN
 } OpCode;
 
