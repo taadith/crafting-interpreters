@@ -30,13 +30,13 @@ void testVM() {
     Chunk chunk;
     initChunk(&chunk);
 
-    for(int i = 1; i < 6; i++) {
-        int constant = addConstant(&chunk, i);
-        writeChunk(&chunk, OP_CONSTANT, i);
-        writeChunk(&chunk, constant, i);
-    }
+    int constant = addConstant(&chunk, 1.2);
+    writeChunk(&chunk, OP_CONSTANT, 1);
+    writeChunk(&chunk, constant, 2);
+
+    writeChunk(&chunk, OP_NEGATE, 3);
     
-    writeChunk(&chunk, OP_RETURN, 6);
+    writeChunk(&chunk, OP_RETURN, 3);
 
     // disassembleChunk(&chunk, "test chunk");
 

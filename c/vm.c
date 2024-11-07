@@ -54,6 +54,12 @@ static InterpretResult run() {
 
                 break;
             }
+
+            case OP_NEGATE: {
+                push(-pop());
+                break;
+            }
+            
             case OP_RETURN: {
                 // return pops the stack and prints...
                 // ... the top value before exiting
