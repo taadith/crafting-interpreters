@@ -1,5 +1,6 @@
 CC = clang
 CC_CHECK_FLAGS = -fsyntax-only
+CC_COMPILE_FLAGS = -fsanitize=address
 
 C_FILES = main.c chunk.c debug.c memory.c rle.c value.c vm.c
 
@@ -31,7 +32,7 @@ run-jlox-tool:
 
 .PHONY: compile-clox
 compile-clox:
-	cd ./c && $(CC) -o main $(C_FILES)
+	cd ./c && $(CC) -o main $(C_FILES) $(CC_COMPILE_FLAGS)
 
 .PHONY: compile-jlox-tool
 compile-jlox-tool:
