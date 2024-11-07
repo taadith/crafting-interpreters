@@ -27,6 +27,15 @@ static InterpretResult run() {
 // ... and looks up the corresponding Value in the chunk's constant table
 #define READ_CONSTANT() (vm.chunk -> constants.values[READ_BYTE()])
 
+// pop values off the stack...
+// ... and then push the result
+#define BINARY_OP(op) \
+    do { \
+        double b = pop(); \
+        double a = pop(); \
+        push(a op b); \
+    } while (false)
+
     for(;;) {
 
 // dynamic debugging if flag is defined
@@ -59,7 +68,22 @@ static InterpretResult run() {
                 push(-pop());
                 break;
             }
-            
+            case OP_ADD: {
+                BINARY_OP(+);
+                break;
+            }
+            case OP_SUBTRACT: {
+                BINARY_OP(-);
+                break;
+            }
+            case OP_MULTIPLY: {
+                BINARY_OP(*);
+                break;
+            }
+            case OP_DIVIDE: {
+                BINARY_OP(/);
+                break;
+            }
             case OP_RETURN: {
                 // return pops the stack and prints...
                 // ... the top value before exiting
@@ -73,6 +97,7 @@ static InterpretResult run() {
 
 #undef READ_BYTE
 #undef READ_CONSTANT
+#undef BINARY_OP
 }
 
 InterpretResult interpret(Chunk* ch) {
