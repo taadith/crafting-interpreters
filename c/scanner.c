@@ -11,3 +11,12 @@ typedef struct {
 } Scanner;
 
 Scanner scanner;
+
+void initScanner(const char* src) {
+    // start at the very first char...
+    scanner.start = src;
+    scanner.current = src;
+
+    // ... on the very first line
+    scanner.line = 1;
+}
