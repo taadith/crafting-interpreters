@@ -7,7 +7,10 @@
 void compile(const char* src) {
     initScanner(src);
     int line = -1;
+
+    // loops indefinitely
     for(;;) {
+        // scans one token and then prints it
         Token token = scanToken();
         if (token.line != line) {
             printf("%4d ", token.line);
@@ -15,9 +18,9 @@ void compile(const char* src) {
         }
         else
             printf("\t| ");
-        
         printf("%2d '%.*s'\n", token.type, token.length, token.start);
 
+        // stops on the "EOF" token or an error token
         if (token.type == TOKEN_EOF)
             break;
     }

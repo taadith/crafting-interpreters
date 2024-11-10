@@ -2,7 +2,7 @@ CC = clang
 CC_CHECK_FLAGS = -fsyntax-only
 CC_COMPILE_FLAGS = -fsanitize=address
 
-C_FILES = main.c chunk.c compiler.c debug.c memory.c rle.c value.c vm.c
+C_FILES = main.c chunk.c compiler.c debug.c memory.c rle.c scanner.c value.c vm.c
 
 LOX_DIR = ./com/craftinginterpreters/lox
 TOOL_DIR = ./com/craftinginterpreters/tool
