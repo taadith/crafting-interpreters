@@ -21,6 +21,10 @@ void initScanner(const char* src) {
     scanner.line = 1;
 }
 
+static bool isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
 // src strings ends with a null byte character
 static bool isAtEnd() {
     return *scanner.current == '\0';
@@ -109,6 +113,40 @@ static void skipWhitespace() {
     }
 }
 
+static Token number() {
+    while(isDigit(peek()))
+        advance();
+    
+    // look for a fractional part
+    if (peek() == '.' && isDigit(peekNext())) {
+        // consume the '.'
+        advance();
+
+        while(isDigit(peek()))
+            advance();
+    }
+
+    return makeToken(TOKEN_NUMBER);
+}
+
+static Token string() {
+    // consume chars until we reach the closing quote
+    while(peek() != '"' && isAtEnd()) {
+        // tracking newlines for multi-line strings
+        if (peek() == '\n')
+            scanner.line++;
+        advance();
+    }
+
+    if (isAtEnd())
+        return errorToken("unterminated string");
+    
+    // the closing quote
+    advance();
+    
+    return makeToken(TOKEN_STRING);
+}
+
 Token scanToken() {
     // for handling whitespace
     skipWhitespace();
@@ -122,6 +160,9 @@ Token scanToken() {
         return makeToken(TOKEN_EOF);
 
     char c = advance();
+
+    if (isDigit(c))
+        return number();
 
     switch(c) {
         // single character tokens
@@ -165,6 +206,10 @@ Token scanToken() {
             return makeToken(
                 match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER
             );
+        
+        // literal tokens
+        case '"':
+            return string();
     }
     
     return errorToken("unexpected character");
