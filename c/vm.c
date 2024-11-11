@@ -102,8 +102,28 @@ static InterpretResult run() {
 }
 
 InterpretResult interpret(const char* src) {
-    compile(src);
-    return INTERPRET_OK;
+    // create a new empty chunk
+    Chunk chunk;
+    initChunk(&chunk);
+
+    // pass it over to the compiler which takes the...
+    // ... user's program and fills the chunk w/ bytecode...
+    // ... unless there's an error
+    if (!compile(src, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    // send the completed chunk over to the VM
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk -> code;
+
+    // VM executes code
+    InterpretResult result = run();
+
+    // the chunk is freed and now all done!
+    freeChunk(&chunk);
+    return result;
 }
 
 void push(Value value) {
