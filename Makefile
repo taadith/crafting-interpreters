@@ -2,10 +2,10 @@ CC = clang
 CC_CHECK_FLAGS = -fsyntax-only
 CC_COMPILE_FLAGS = -fsanitize=address
 
-C_FILES = main.c chunk.c compiler.c debug.c memory.c rle.c scanner.c value.c vm.c
+C_FILES = chunk.c compiler.c debug.c main.c memory.c rle.c scanner.c value.c vm.c
 
-LOX_DIR = ./com/craftinginterpreters/lox
-TOOL_DIR = ./com/craftinginterpreters/tool
+JLOX_DIR = 		./com/craftinginterpreters/lox
+JLOX_TOOL_DIR = ./com/craftinginterpreters/tool
 
 LOX_FILE ?=
 
@@ -28,7 +28,7 @@ run-jlox:
 
 .PHONY: run-jlox-tool
 run-jlox-tool:
-	cd ./java && java com.craftinginterpreters.tool.GenerateAst $(LOX_DIR)
+	cd ./java && java com.craftinginterpreters.tool.GenerateAst $(JLOX_DIR)
 
 .PHONY: compile-clox
 compile-clox:
@@ -36,11 +36,11 @@ compile-clox:
 
 .PHONY: compile-jlox-tool
 compile-jlox-tool:
-	cd ./java && javac $(TOOL_DIR)/*.java
+	cd ./java && javac $(JLOX_TOOL_DIR)/*.java
 
 .PHONY: compile-jlox
 compile-jlox:
-	cd ./java && javac $(LOX_DIR)/*.java
+	cd ./java && javac $(JLOX_DIR)/*.java
 
 .PHONY: check-clox
 check-clox:
@@ -55,8 +55,8 @@ clean-clox:
 
 .PHONY: clean-jlox
 clean-jlox:
-	rm -f java/$(LOX_DIR)/*.class
+	rm -f java/$(JLOX_DIR)/*.class
 
 .PHONY: clean-tool
 clean-tool:
-	rm -f java/$(TOOL_DIR)/*.class
+	rm -f java/$(JLOX_TOOL_DIR)/*.class
