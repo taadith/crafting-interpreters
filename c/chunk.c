@@ -38,6 +38,8 @@ void freeChunk(Chunk* chunk) {
     initChunk(chunk);
 }
 
+// adds the given value to the end of the... 
+// ... chunk's constant table and returns its index
 int addConstant(Chunk* chunk, Value value) {
     writeValueArray(&chunk -> constants, value);
 
