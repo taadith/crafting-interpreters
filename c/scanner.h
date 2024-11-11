@@ -14,7 +14,7 @@ typedef enum {
     TOKEN_GREATER, TOKEN_GREATER_EQUAL,
     TOKEN_LESS, TOKEN_LESS_EQUAL,
 
-    // literals
+    // literal tokens
     TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_NUMBER,
 
     // keywords
