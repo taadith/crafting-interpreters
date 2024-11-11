@@ -5,12 +5,18 @@
 #include "compiler.h"
 #include "scanner.h"
 
+#ifdef DEBUG_PRINT_CODE
+#include "debug.h"
+#endif
+
 typedef struct {
     Token current;
     Token previous;
     bool hadError;
     bool panicMode;
 } Parser;
+
+Parser parser;
 
 // all of Lox's precedence lvls...
 // ... from lowest to highest
@@ -39,7 +45,6 @@ typedef struct {
     Precedence precedence;
 } ParseRule;
 
-Parser parser;
 Chunk* compilingChunk;
 
 static Chunk* currentChunk() {
@@ -75,19 +80,21 @@ static void error(const char* msg) {
     errorAt(&parser.previous, msg);
 }
 
-// reporting error at current token
+// reporting error token at `current`
 static void errorAtCurrent(const char* msg) {
     errorAt(&parser.current, msg);
 }
 
 static void advance() {
+    // takes old `current` token and stashes...
+    // ... it in the `previous` field
     parser.previous = parser.current;
 
     // keep reporting errors until we...
     // ... reach the end or a non-error token
     for(;;) {
-        // here's where the scanner...
-        // ... emits a token to the parser
+        // asks scanner for next token...
+        // ... and stores it for later use
         parser.current = scanToken();
 
         if (parser.current.type != TOKEN_ERROR)
@@ -96,6 +103,8 @@ static void advance() {
     }
 }
 
+// similar to `advance()` in that it reads the next token...
+// ... but it also validates that the token has an expected type
 static void consume(TokenType type, const char* msg) {
     if (parser.current.type == type) {
         advance();
@@ -139,6 +148,14 @@ static void emitReturn() {
 
 static void endCompiler() {
     emitReturn();
+
+// print out chunk's bytecode...
+// ... only if there is no error
+#ifdef DEBUG_PRINT_CODE
+    if (!parser.hadError)
+        disassembleChunk(currentChunk(), "code");
+#endif
+
 }
 
 // function annotations
@@ -272,6 +289,8 @@ static void expression() {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+// returns whether or not compilation succeeded
+// compiler writes opcode into `chunk`
 bool compile(const char* src, Chunk* chunk) {
     initScanner(src);
     compilingChunk = chunk;
