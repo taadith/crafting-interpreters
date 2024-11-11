@@ -110,6 +110,7 @@ InterpretResult interpret(const char* src) {
     // ... user's program and fills the chunk w/ bytecode...
     // ... unless there's an error
     if (!compile(src, &chunk)) {
+        // discard the unusable chunk
         freeChunk(&chunk);
         return INTERPRET_COMPILE_ERROR;
     }
