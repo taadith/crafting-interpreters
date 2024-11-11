@@ -17,7 +17,7 @@ void compile(const char* src) {
             line = token.line;
         }
         else
-            printf("\t| ");
+            printf("   | ");
         printf("%2d '%.*s'\n", token.type, token.length, token.start);
 
         // stops on the "EOF" token or an error token
