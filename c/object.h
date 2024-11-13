@@ -4,6 +4,10 @@
 #include "common.h"
 #include "value.h"
 
+typedef enum {
+    OBJ_STRING,
+} ObjType;
+
 struct Obj {
     ObjType type;
 };
