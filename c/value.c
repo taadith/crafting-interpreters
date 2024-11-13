@@ -3,6 +3,26 @@
 #include "memory.h"
 #include "value.h"
 
+void valuesEqual(Value a, Value b) {
+    // Values of diff types are inherently inequal
+    if (a.type != b.type)
+        return false;
+
+    // otherwise, unwrap the Values and directly compare
+    switch(a.type) {
+        case VAL_BOOL:
+            return AS_BOOL(a) == AS_BOOL(b);
+        case VAL_NIL:
+            return true;
+        case VAL_NUMBER:
+            return AS_NUMBER(a) == AS_NUMBER(b);
+
+        // unreachable
+        default:
+            return;
+    }
+}
+
 void initValueArray(ValueArray* array) {
     array -> capacity = 0;
     array -> count = 0;
