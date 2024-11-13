@@ -208,8 +208,10 @@ static void number() {
     // ... C STL to convert it to a double value
     double value = strtod(parser.previous.start, NULL);
     
-    // generate code to load value
-    emitConstant(value);
+    // generate opcode to load value
+    //     - wrap C double in a Value struct before...
+    //       ... storing it in the constant table
+    emitConstant(NUMBER_VAL(value));
 }
 
 static void unary() {
@@ -276,10 +278,10 @@ ParseRule rules[] = {
 // starts at the current token and parses any...
 // ... expression at the given precedence lvl or higher
 static void parsePrecedence(Precedence precedence) {
-    // read the next token and look up the corresponding ParseRule
+    // read the next token
     advance();
 
-    // loop up a prefix parser for teh current token
+    // look up a prefix parser for the previous token
     ParseFn prefixRule = getRule(parser.previous.type) -> prefix;
     
     // no prefix rule means that...
