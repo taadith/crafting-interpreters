@@ -19,6 +19,10 @@ typedef struct {
     Value* stackTop;
 } VM;
 
+void push(Value value);
+Value pop();
+// static Value peek(int distance);
+
 // results of interpret()
 typedef enum {
     INTERPRET_OK,
@@ -30,9 +34,5 @@ void initVM();
 void freeVM();
 
 InterpretResult interpret(const char* src);
-
-void push(Value value);
-Value pop();
-static Value peek(int distance);
 
 #endif

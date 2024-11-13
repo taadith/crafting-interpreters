@@ -8,9 +8,37 @@
 
 VM vm;
 
+void push(Value value) {
+    // set stackTop location to new value
+    *(vm.stackTop) = value;
+
+    // move the stackTop just...
+    // ... past the last item
+    vm.stackTop++;
+}
+
+Value pop() {
+    // move stack top down
+    vm.stackTop--;
+
+    // return item where stack top moved too...
+    // ... bc its just past the last item
+    return *(vm.stackTop);
+}
+
+// returns a Value <distance> "Values" down...
+// ... from the top of the stack
+static Value peek(int distance) {
+    return vm.stackTop[-1 - distance];
+}
+
 static void resetStack() {
     // set stackTop to stack[0]
     vm.stackTop = vm.stack;
+}
+
+static bool isFalsey(Value value) {
+    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
 static void runtimeError(const char* format, ...) {
@@ -95,16 +123,6 @@ static InterpretResult run() {
                 push(BOOL_VAL(false));
                 break;
 
-            case OP_NEGATE: {
-                // check that Value on top of stack is a number
-                if (!IS_NUMBER(peek(0))) {
-                    runtimeError("operand must be a number");
-                    return INTERPRET_RUNTIME_ERROR;
-                }
-                push(NUMBER_VAL(-AS_NUMBER(pop())));
-                break;
-            }
-
             case OP_ADD: {
                 BINARY_OP(NUMBER_VAL, +);
                 break;
@@ -122,6 +140,21 @@ static InterpretResult run() {
 
             case OP_DIVIDE: {
                 BINARY_OP(NUMBER_VAL, /);
+                break;
+            }
+
+            case OP_NOT:
+                // pops one operand, performs logical not, pushes result
+                push(BOOL_VAL(isFalsey(pop())));
+                break;
+
+            case OP_NEGATE: {
+                // check that Value on top of stack is a number
+                if (!IS_NUMBER(peek(0))) {
+                    runtimeError("operand must be a number");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
             }
 
@@ -165,28 +198,4 @@ InterpretResult interpret(const char* src) {
     // the chunk is freed and now all done!
     freeChunk(&chunk);
     return result;
-}
-
-void push(Value value) {
-    // set stackTop location to new value
-    *(vm.stackTop) = value;
-
-    // move the stackTop just...
-    // ... past the last item
-    vm.stackTop++;
-}
-
-Value pop() {
-    // move stack top down
-    vm.stackTop--;
-
-    // return item where stack top moved too...
-    // ... bc its just past the last item
-    return *(vm.stackTop);
-}
-
-// returns a Value <distance> "Values" down...
-// ... from the top of the stack
-static Value peek(int distance) {
-    return vm.stackTop[-1 - distance];
 }
