@@ -4,6 +4,9 @@
 #include "common.h"
 #include "value.h"
 
+// extracts object type tag from a given Value
+#define OBJ_TYPE(value)     (AS_OBJ(value) -> type)
+
 typedef enum {
     OBJ_STRING,
 } ObjType;
