@@ -3,7 +3,7 @@
 #include "memory.h"
 #include "value.h"
 
-void valuesEqual(Value a, Value b) {
+bool valuesEqual(Value a, Value b) {
     // Values of diff types are inherently inequal
     if (a.type != b.type)
         return false;
@@ -19,7 +19,7 @@ void valuesEqual(Value a, Value b) {
 
         // unreachable
         default:
-            return;
+            return false;
     }
 }
 
