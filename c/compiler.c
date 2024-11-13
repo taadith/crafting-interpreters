@@ -196,6 +196,24 @@ static void binary() {
     }
 }
 
+static void literal() {
+    switch(parser.previous.type) {
+        case TOKEN_FALSE:
+            emitByte(OP_FALSE);
+            break;
+        case TOKEN_NIL:
+            emitByte(OP_NIL);
+            break;
+        case TOKEN_TRUE:
+            emitByte(OP_TRUE);
+            break;
+        
+        // unreachable
+        default:
+            return;
+    }
+}
+
 // grouping -> "(" expression ")" ;
 // "(" is assumed to have already been consumed
 static void grouping() {
