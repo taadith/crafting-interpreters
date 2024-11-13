@@ -22,7 +22,7 @@ static void runtimeError(const char* format, ...) {
 
     size_t instructionIndex = vm.ip - (vm.chunk -> code) - 1;
     int line = getLine(vm.chunk, instructionIndex);
-    fprintf(stderr, "[line %d] in script\n");
+    fprintf(stderr, "[line %d] in script\n", line);
     resetStack();
 }
 
