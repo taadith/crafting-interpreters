@@ -250,7 +250,10 @@ static void number() {
     emitConstant(NUMBER_VAL(value));
 }
 
+// takes string's chars directly from the lexeme and...
+// ... creates a string obj which is wrapped in a Value
 static void string() {
+    // +1 and -2 trims leading and trailing quotation marks
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
 

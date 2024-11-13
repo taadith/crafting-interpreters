@@ -7,6 +7,7 @@
 // extracts object type tag from a given Value
 #define OBJ_TYPE(value)     (AS_OBJ(value) -> type)
 
+// is the Obj a OBJ_STRING?
 #define IS_STRING(value)    isObjType(value, OBJ_STRING)
 
 // returns the ObjString* ptr
