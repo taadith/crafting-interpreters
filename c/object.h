@@ -21,8 +21,10 @@ typedef enum {
     OBJ_STRING,
 } ObjType;
 
+// struct itself is the linked list node for the GC
 struct Obj {
     ObjType type;
+    struct Obj* next;
 };
 
 struct ObjString {
@@ -30,6 +32,8 @@ struct ObjString {
     int length;
     char* chars;
 };
+
+ObjString* takeString(char* chars, int length);
 
 // allocate a new ObjString
 ObjString* copyString(const char* chars, int length);
