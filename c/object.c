@@ -36,7 +36,12 @@ static ObjString* allocateString(char* chars, int length) {
     return string;
 }
 
-// allocate a new ObjString
+// claims ownership of the c string given
+ObjString* takeString(char* chars, int length) {
+    return allocateString(chars, length);
+}
+
+// conservatively creates a copy of the chars on the heap
 ObjString* copyString(const char* chars, int length) {
     // allocate a new array on the heap big enough...
     // ... for the string's chars and the trailing terminator
