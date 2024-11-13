@@ -24,7 +24,7 @@ typedef enum {
 // struct itself is the linked list node for the GC
 struct Obj {
     ObjType type;
-    struct Obj* next;
+    // struct Obj* next;
 };
 
 struct ObjString {
