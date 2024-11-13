@@ -25,7 +25,7 @@ static int simpleInstruction(const char* name, int offset) {
     return offset + 1;
 }
 
-int getLine(Chunk* chunk, int instructionIndex) {
+int getLine(Chunk* chunk, size_t instructionIndex) {
     // index is out of bounds
     if (instructionIndex < 0 || instructionIndex >= chunk -> rle.totalData)
         exit(1);

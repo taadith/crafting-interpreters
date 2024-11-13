@@ -33,6 +33,6 @@ InterpretResult interpret(const char* src);
 
 void push(Value value);
 Value pop();
-// Value peek(); ???
+static Value peek(int distance);
 
 #endif
