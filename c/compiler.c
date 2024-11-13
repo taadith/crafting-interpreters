@@ -114,11 +114,13 @@ static void consume(TokenType type, const char* msg) {
     errorAtCurrent(msg);
 }
 
-// appends a single byte to the chunk
+// appends a single byte, either an opcode...
+// ... or an operand to an instruction, to the chunk
 static void emitByte(uint8_t byte) {
     writeChunk(currentChunk(), byte, parser.previous.line);
 }
 
+// useful for writing an opcode and a one-byte operand
 static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1);
     emitByte(byte2);
@@ -129,7 +131,7 @@ static uint8_t makeConstant(Value value) {
     // value's index in the constant tabler
     int constant = addConstant(currentChunk(), value);
 
-    // checks that value's index isn't greater than UINT8_MAX
+    // we can't have more than 256 constants at a time
     if (constant > UINT8_MAX) {
         error("too many constants in one chunk");
         return 0;
@@ -138,10 +140,14 @@ static uint8_t makeConstant(Value value) {
     return (uint8_t)constant;
 }
 
+// (1) add value to the constant table w/ makeConstant()
+// (2) emit an OP_CONSTANT instruction that pushes...
+//     ... value onto the stack at runtime
 static void emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
 }
 
+// appends OP_RETURN to chunk
 static void emitReturn() {
     emitByte(OP_RETURN);
 }
@@ -166,6 +172,8 @@ static void parsePrecedence(Precedence precedence);
 static void binary() {
     TokenType operatorType = parser.previous.type;
     ParseRule* rule = getRule(operatorType);
+
+    // use `+ 1` bc binary operators are left-associative
     parsePrecedence((Precedence) (rule -> precedence + 1));
 
     switch(operatorType) {
@@ -188,21 +196,27 @@ static void binary() {
     }
 }
 
+// grouping -> "(" expression ")" ;
+// "(" is assumed to have already been consumed
 static void grouping() {
     expression();
     consume(TOKEN_RIGHT_PAREN, "expected ')' after expression");
 }
 
 static void number() {
+    // take lexeme stored in previous and use...
+    // ... C STL to convert it to a double value
     double value = strtod(parser.previous.start, NULL);
+    
+    // generate code to load value
     emitConstant(value);
 }
 
 static void unary() {
     TokenType operatorType = parser.previous.type;
 
-    // compile the operand
-    parsePrecedence(PREC_UNARY);
+    // compile the operand before we negate it
+    parsePrecedence(PREC_UNARY);    // can only parse >= PREC_UNARY
 
     // emit the operator instruction
     switch(operatorType) {
@@ -259,9 +273,13 @@ ParseRule rules[] = {
     [TOKEN_EOF]             = {NULL,        NULL,   PREC_NONE},
 };
 
+// starts at the current token and parses any...
+// ... expression at the given precedence lvl or higher
 static void parsePrecedence(Precedence precedence) {
     // read the next token and look up the corresponding ParseRule
     advance();
+
+    // loop up a prefix parser for teh current token
     ParseFn prefixRule = getRule(parser.previous.type) -> prefix;
     
     // no prefix rule means that...
@@ -274,7 +292,7 @@ static void parsePrecedence(Precedence precedence) {
     prefixRule();
 
     // looking for an infix parser for the next token
-    while(precedence <= getRule(parser.current.type) -> precedence) {
+    while(precedence <= (getRule(parser.current.type) -> precedence)) {
         advance();
         ParseFn infixRule = getRule(parser.previous.type) -> infix;
         infixRule();
@@ -286,6 +304,7 @@ static ParseRule* getRule(TokenType type) {
 }
 
 static void expression() {
+    // simply parse the lowest precedence lvl
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
