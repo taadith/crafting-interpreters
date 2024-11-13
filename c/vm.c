@@ -1,9 +1,12 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
+#include "object.h"
+#include "memory.h"
 #include "vm.h"
 
 VM vm;
@@ -39,6 +42,27 @@ static void resetStack() {
 
 static bool isFalsey(Value value) {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
+static void concatenate() {
+    ObjString* b = AS_STRING(pop());
+    ObjString* a = AS_STRING(pop());
+
+    // new combined length
+    int length = a -> length + b -> length;
+
+    // allocate space for C string
+    char* chars = ALLOCATE(char, length + 1);
+
+    // copy a -> chars and then b -> chars
+    memcpy(chars, a -> chars, a -> length);
+    memcpy(chars + a -> length, b -> chars, b -> length);
+
+    // set null-terminated char at end
+    chars[length] = '\0';
+
+    ObjString* result = takeString(chars, length);
+    push(OBJ_VAL(result));
 }
 
 static void runtimeError(const char* format, ...) {

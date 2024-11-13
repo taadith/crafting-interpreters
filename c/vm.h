@@ -21,7 +21,6 @@ typedef struct {
 
 void push(Value value);
 Value pop();
-// static Value peek(int distance);
 
 // results of interpret()
 typedef enum {
