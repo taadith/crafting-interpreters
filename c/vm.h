@@ -17,6 +17,10 @@ typedef struct {
 
     // pts just past the last item
     Value* stackTop;
+
+    // VM stores a ptr to the head...
+    // ... of the linked list of objects
+    Obj* objects;
 } VM;
 
 void push(Value value);
@@ -28,6 +32,9 @@ typedef enum {
     INTERPRET_COMPILE_ERROR,
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
+
+// exposes global vm variables to other modules
+extern VM vm;
 
 void initVM();
 void freeVM();
