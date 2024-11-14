@@ -18,8 +18,8 @@ typedef struct {
     // pts just past the last item
     Value* stackTop;
 
-    // VM stores a ptr to the head...
-    // ... of the linked list of objects
+    // VM stores a ptr to the...
+    // ... head of the linked list
     Obj* objects;
 } VM;
 
