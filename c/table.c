@@ -85,6 +85,9 @@ static void adjustCapacity(Table* table, int capacity) {
         entries[i].value = NIL_VAL;
     }
 
+    // recalculate bc we don't copy tombstones over
+    table -> count = 0;
+
     // re-insert every entry into the new empty array
     for (int i = 0; i < table -> capacity; i++) {
         Entry* entry = &table -> entries[i];
@@ -99,6 +102,9 @@ static void adjustCapacity(Table* table, int capacity) {
         // initialize the key/value pair of the bucket
         dest -> key = entry -> key;
         dest -> value = entry -> value;
+
+        // increment each time a non-tombstone entry is found
+        table -> count++;
     }
 
     // release memory for old array
@@ -121,9 +127,10 @@ bool tableSet(Table* table, ObjString* key, Value value) {
     // find entry
     Entry* entry = findEntry(table -> entries, table -> capacity, key);
     
-    // increment count if it's an untouched entry
+    // increment count if it's an empty bucket...
+    // ... not counting tombstones
     bool isNewKey = entry -> key == NULL;
-    if (isNewKey)
+    if (isNewKey && IS_NIL(entry -> value))
         table -> count++;
 
     entry -> key = key;
