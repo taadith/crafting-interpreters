@@ -29,4 +29,7 @@ void freeTable(Table* table);
 // adds given key/value pair to the given hash table
 bool tableSet(Table* table, ObjString* key, Value value);
 
+// copies entries of one hash table to another
+bool tableAddAll(Table* from, Table* to);
+
 #endif

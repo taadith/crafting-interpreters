@@ -41,6 +41,43 @@ static Entry* findEntry(Entry* entries, int capacity,
     }
 }
 
+// changing table to a new capacity
+static void adjustCapacity(Table* table, int capacity) {
+    // create a bucket array w/ capacity entries
+    Entry* entries = ALLOCATE(Entry, capacity);
+
+    // initialize every element to be an empty bucket
+    for(int i = 0; i < capacity; i++) {
+        entries[i].key == NULL;
+        entries[i].value = NIL_VAL;
+    }
+
+    // re-insert every entry into the new empty array
+    for (int i = 0; i < table -> capacity; i++) {
+        Entry* entry = &table -> entries[i];
+
+        // empty entry, so skip!
+        if (entry -> key == NULL)
+            continue;
+
+        // find a ptr to where the key should go
+        Entry* dest = findEntry(entries, capacity, entry -> key);
+        
+        // initialize the key/value pair of the bucket
+        dest -> key = entry -> key;
+        dest -> value = entry -> value;
+    }
+
+    // release memory for old array
+    FREE_ARRAY(Entry, table -> entries, table -> capacity);
+
+    // replace the table's entries and...
+    // ... capacity w/ the new versions
+    table -> entries = entries;
+    table -> capacity = capacity;
+}
+
+// adds given key/value pair to the given hash table
 bool tableSet(Table* table, ObjString* key, Value value) {
     // checking if arrays exists OR if the array is big enough
     if (table -> count + 1 > table -> capacity * TABLE_MAX_LOAD) {
@@ -60,4 +97,17 @@ bool tableSet(Table* table, ObjString* key, Value value) {
     entry -> value = value;
 
     return isNewKey;
+}
+
+// copies entries of one hash table to another
+void tableAddAll(Table* from, Table* to) {
+    // walks the bucket array of the src hash table
+    for(int i = 0; i < from -> capacity; i++) {
+        Entry* entry = &(from -> entries[i]);
+
+        // after finding a non-empty bucket...
+        // ... add entry to dest hash table
+        if (entry -> key != NULL)
+            tableSet(to, entry -> key, entry -> value);
+    }
 }
