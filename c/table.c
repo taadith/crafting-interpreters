@@ -22,8 +22,8 @@ void freeTable(Table* table) {
     initTable(table);
 }
 
-// findEntry()'s job is to take a key and figure out which bucket in the array it should go in
-// returns a ptr to that bucket -- the address of the Entry in the array
+// take a key and figure out which bucket in the array it should go in...
+// ... returns a ptr to that bucket -- the address of the Entry in the array
 static Entry* findEntry(Entry* entries, int capacity,
                         ObjString* key) {
     uint32_t index = (key -> hash) % capacity;
@@ -39,6 +39,24 @@ static Entry* findEntry(Entry* entries, int capacity,
         // keep looking!
         index = (index + 1) % capacity;
     }
+}
+
+// given a key, look up the corresponding value
+bool tableGet(Table* table, ObjString* key, Value* value) {
+    // empty table, so key doesn't exist
+    if (table -> count == 0)
+        return false;
+    
+    // look up the entry w/ the corresponding key
+    Entry* entry = findEntry(table -> entries, table -> capacity, key);
+    
+    // empty bucket, so no Entry w/ key
+    if (entry -> key == NULL)
+        return false;
+    
+    // found a match
+    *value = entry -> value;
+    return true;
 }
 
 // changing table to a new capacity
