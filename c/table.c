@@ -28,12 +28,27 @@ static Entry* findEntry(Entry* entries, int capacity,
                         ObjString* key) {
     uint32_t index = (key -> hash) % capacity;
 
+    // first time we pass a tombstone, store it here
+    Entry* tombstone = NULL;
+
     for(;;) {
         Entry* entry = &entries[index];
 
-        // found that the Entry's key matches w/ our key...
-        // ... or found an empty Entry
-        if (entry -> key == key || entry -> key == NULL)
+        // empty entry OR a tombstone
+        if (entry -> key == NULL) {
+            // empty entry, so if we have passed a tombstone...
+            // ... return its bucket instead of the later empty one
+            if (IS_NIL(entry -> value))
+                return tombstone != NULL ? tombstone : entry;
+            
+            // found a tombstone, so have this be the entry
+            else {
+                if (tombstone == NULL)
+                    tombstone == entry;
+            }
+        }
+        // found the key!
+        else if (entry -> key == key)
             return entry;
         
         // keep looking!
@@ -115,6 +130,26 @@ bool tableSet(Table* table, ObjString* key, Value value) {
     entry -> value = value;
 
     return isNewKey;
+}
+
+// deleting an entry from the given hash table
+bool tableDelete(Table* table, ObjString* key) {
+    // empty table, so no key exists to delete
+    if (table -> count == 0)
+        return false;
+
+    // find the entry to delete
+    Entry* entry = findEntry(table -> entries, table -> capacity, key);
+
+    // empty bucket, so no Entry w/ key to begin with
+    if (entry -> key == NULL)
+        return false;
+
+    // place a tombstone in the entry
+    entry -> key = NULL;
+    entry -> value = BOOL_VAL(true);
+
+    return true;
 }
 
 // copies entries of one hash table to another
