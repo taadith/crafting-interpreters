@@ -24,7 +24,7 @@ typedef struct {
 } VM;
 
 void push(Value value);
-Value pop();
+Value pop(void);
 
 // results of interpret()
 typedef enum {
@@ -36,8 +36,8 @@ typedef enum {
 // exposes global vm variables to other modules
 extern VM vm;
 
-void initVM();
-void freeVM();
+void initVM(void);
+void freeVM(void);
 
 InterpretResult interpret(const char* src);
 

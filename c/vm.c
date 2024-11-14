@@ -20,7 +20,7 @@ void push(Value value) {
     vm.stackTop++;
 }
 
-Value pop() {
+Value pop(void) {
     // move stack top down
     vm.stackTop--;
 
@@ -35,7 +35,7 @@ static Value peek(int distance) {
     return vm.stackTop[-1 - distance];
 }
 
-static void resetStack() {
+static void resetStack(void) {
     // set stackTop to stack[0]
     vm.stackTop = vm.stack;
 }
@@ -44,7 +44,7 @@ static bool isFalsey(Value value) {
     return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
 }
 
-static void concatenate() {
+static void concatenate(void) {
     ObjString* b = AS_STRING(pop());
     ObjString* a = AS_STRING(pop());
 
@@ -78,16 +78,16 @@ static void runtimeError(const char* format, ...) {
     resetStack();
 }
 
-void initVM() {
+void initVM(void) {
     resetStack();
     vm.objects = NULL;
 }
 
-void freeVM() {
+void freeVM(void) {
     freeObjects();
 }
 
-static InterpretResult run() {
+static InterpretResult run(void) {
 // reads current byte pointed at by ip...
 // ... and then advances the ip
 #define READ_BYTE() (*vm.ip++)

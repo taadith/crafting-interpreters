@@ -32,24 +32,24 @@ static bool isDigit(char c) {
 }
 
 // src strings ends with a null byte character
-static bool isAtEnd() {
+static bool isAtEnd(void) {
     return *scanner.current == '\0';
 }
 
 // consumes next char and returns it
-static char advance() {
+static char advance(void) {
     scanner.current++;
     return scanner.current[-1];
 }
 
 // returns the next char w/ no consumption
-static char peek() {
+static char peek(void) {
     return *scanner.current;
 }
 
 // similar to peek but looks at...
 // ... the char past the current one
-static char peekNext() {
+static char peekNext(void) {
     if (isAtEnd())
         return '\0';
     return scanner.current[1];
@@ -91,7 +91,7 @@ static Token errorToken(const char* msg) {
     return token;
 }
 
-static void skipWhitespace() {
+static void skipWhitespace(void) {
     for(;;) {
         char c = peek();
         switch(c) {
@@ -128,7 +128,7 @@ static TokenType checkKeyword(int start, int length,
     return TOKEN_IDENTIFIER;
 }
 
-static TokenType identifierType() {
+static TokenType identifierType(void) {
     switch(scanner.start[0]) {
         case 'a':
             return checkKeyword(1, 2, "nd", TOKEN_AND);
@@ -179,14 +179,14 @@ static TokenType identifierType() {
     return TOKEN_IDENTIFIER;
 }
 
-static Token identifier() {
+static Token identifier(void) {
     while (isAlpha(peek()) || isDigit(peek()))
         advance();
     
     return makeToken(identifierType());
 }
 
-static Token number() {
+static Token number(void) {
     while(isDigit(peek()))
         advance();
     
@@ -202,7 +202,7 @@ static Token number() {
     return makeToken(TOKEN_NUMBER);
 }
 
-static Token string() {
+static Token string(void) {
     // consume chars until we reach the closing quote
     while(peek() != '"' && !isAtEnd()) {
         // tracking newlines for multi-line strings
@@ -220,7 +220,7 @@ static Token string() {
     return makeToken(TOKEN_STRING);
 }
 
-Token scanToken() {
+Token scanToken(void) {
     // for handling whitespace
     skipWhitespace();
 

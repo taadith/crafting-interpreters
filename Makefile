@@ -1,5 +1,5 @@
 CC = clang
-CC_CHECK_FLAGS = -fsyntax-only
+CC_CHECK_FLAGS = -fsyntax-only -Wall -Wextra -Wpedantic
 CC_COMPILE_FLAGS = -fsanitize=address
 
 C_FILES = chunk.c compiler.c debug.c main.c memory.c object.c rle.c scanner.c value.c vm.c

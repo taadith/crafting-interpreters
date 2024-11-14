@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "vm.h"
 
-static void repl() {
+static void repl(void) {
     char line[1024];
     for(;;) {
         printf("> ");
@@ -77,7 +77,7 @@ static void runFile(const char* path) {
         exit(70);
 }
 
-void testRunLengthEncoding() {
+void testRunLengthEncoding(void) {
     printf("starting RunLengthEncoding test...\n");
 
     RunLengthEncoding rle;

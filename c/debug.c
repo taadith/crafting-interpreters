@@ -30,7 +30,7 @@ int getLine(Chunk* chunk, size_t instructionIndex) {
     if (instructionIndex < 0 || instructionIndex >= chunk -> rle.totalData)
         exit(1);
     
-    int index = 0;
+    size_t index = 0;
     for(int i = 0; i < chunk -> rle.count; i++) {
         index += chunk -> rle.multiple[i];
         if (index >= instructionIndex)

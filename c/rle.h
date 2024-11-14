@@ -9,7 +9,7 @@ typedef struct {
 
     int* multiple;
     int* data;
-    int totalData;
+    size_t totalData;
 } RunLengthEncoding;
 
 // creates a RLE

@@ -4,7 +4,7 @@
 #include "vm.h"
 
 void* reallocate(void* ptr, size_t oldSize, size_t newSize) {
-    // oldSize = 0 && newSize > 0
+    // oldSize == 0 && newSize > 0
     if (newSize == 0) {
         free(ptr);
         return NULL;
@@ -35,7 +35,7 @@ static void freeObject(Obj* object) {
     }
 }
 
-void freeObjects() {
+void freeObjects(void) {
     Obj* object = vm.objects;
 
     // walking a linked list...

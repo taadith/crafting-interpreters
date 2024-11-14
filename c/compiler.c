@@ -37,7 +37,7 @@ typedef enum {
 // simple typedef for a function type that...
 // ... takes no args and returns nothing:
 // void <fn name>() {...}
-typedef void (*ParseFn)();
+typedef void (*ParseFn)(void);
 
 typedef struct {
     ParseFn prefix;
@@ -47,7 +47,7 @@ typedef struct {
 
 Chunk* compilingChunk;
 
-static Chunk* currentChunk() {
+static Chunk* currentChunk(void) {
     return compilingChunk;
 }
 
@@ -85,7 +85,7 @@ static void errorAtCurrent(const char* msg) {
     errorAt(&parser.current, msg);
 }
 
-static void advance() {
+static void advance(void) {
     // takes old `current` token and stashes...
     // ... it in the `previous` field
     parser.previous = parser.current;
@@ -148,11 +148,11 @@ static void emitConstant(Value value) {
 }
 
 // appends OP_RETURN to chunk
-static void emitReturn() {
+static void emitReturn(void) {
     emitByte(OP_RETURN);
 }
 
-static void endCompiler() {
+static void endCompiler(void) {
     emitReturn();
 
 // print out chunk's bytecode...
@@ -165,11 +165,11 @@ static void endCompiler() {
 }
 
 // function annotations
-static void expression();
+static void expression(void);
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 
-static void binary() {
+static void binary(void) {
     TokenType operatorType = parser.previous.type;
     ParseRule* rule = getRule(operatorType);
 
@@ -214,7 +214,7 @@ static void binary() {
     }
 }
 
-static void literal() {
+static void literal(void) {
     switch(parser.previous.type) {
         case TOKEN_FALSE:
             emitByte(OP_FALSE);
@@ -234,12 +234,12 @@ static void literal() {
 
 // grouping -> "(" expression ")" ;
 // "(" is assumed to have already been consumed
-static void grouping() {
+static void grouping(void) {
     expression();
     consume(TOKEN_RIGHT_PAREN, "expected ')' after expression");
 }
 
-static void number() {
+static void number(void) {
     // take lexeme stored in previous and use...
     // ... C STL to convert it to a double value
     double value = strtod(parser.previous.start, NULL);
@@ -252,12 +252,12 @@ static void number() {
 
 // takes string's chars directly from the lexeme and...
 // ... creates a string obj which is wrapped in a Value
-static void string() {
+static void string(void) {
     // +1 and -2 trims leading and trailing quotation marks
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
 
-static void unary() {
+static void unary(void) {
     TokenType operatorType = parser.previous.type;
 
     // compile the operand before we negate it
@@ -352,7 +352,7 @@ static ParseRule* getRule(TokenType type) {
     return &rules[type];
 }
 
-static void expression() {
+static void expression(void) {
     // simply parse the lowest precedence lvl
     parsePrecedence(PREC_ASSIGNMENT);
 }
