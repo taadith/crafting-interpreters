@@ -81,9 +81,16 @@ static void runtimeError(const char* format, ...) {
 void initVM(void) {
     resetStack();
     vm.objects = NULL;
+
+    // initialize the "interned" strings hash table
+    initTable(&vm.strings);
 }
 
 void freeVM(void) {
+    // clean up the "interned" strings hash table
+    freeTable(&vm.strings);
+
+    // clean up the objects on the heap
     freeObjects();
 }
 

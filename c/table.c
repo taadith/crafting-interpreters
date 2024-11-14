@@ -48,7 +48,7 @@ static Entry* findEntry(Entry* entries, int capacity,
             }
         }
         // found the key!
-        else if (entry -> key == key)
+        else if (entry -> key == key)   // returns true if they're the exact same string in memory...
             return entry;
         
         // keep looking!
@@ -169,5 +169,32 @@ void tableAddAll(Table* from, Table* to) {
         // ... add entry to dest hash table
         if (entry -> key != NULL)
             tableSet(to, entry -> key, entry -> value);
+    }
+}
+
+// what does this do??
+ObjString* tableFindString(Table* table, const char* chars,
+                           int length, uint32_t hash) {
+    if (table -> count = 0)
+        return NULL;
+    
+    uint32_t index = hash % (table -> capacity);
+    for(;;) {
+        Entry* entry = &(table -> entries[index]);
+
+        // stop if we find an empty non-tombstone entry
+        if (entry -> key == NULL) {
+            if (IS_NIL(entry -> value))
+                return NULL;
+        }
+
+        // found it!
+        else if (entry -> key -> length == length &&
+                 entry -> key -> hash == hash &&
+                 memcmp(entry -> key -> chars, chars, length) == 0)
+            return entry -> key;
+        
+        // keep looking!
+        index = (index + 1) % (table -> capacity);
     }
 }

@@ -3,6 +3,7 @@
 
 #include "memory.h"
 #include "object.h"
+#include "table.h"
 #include "value.h"
 #include "vm.h"
 
@@ -39,6 +40,9 @@ static ObjString* allocateString(char* chars, int length,
     string -> chars = chars;
     string -> hash = hash;
 
+    // add string to the "interned" strings hash table
+    tableSet(&vm.strings, string, NIL_VAL);
+
     // returns the ptr
     return string;
 }
@@ -66,6 +70,16 @@ ObjString* takeString(char* chars, int length) {
     // hash the string
     uint32_t hash = hashString(chars, length);
 
+    // look up the string in the string table first...
+    ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+    // ... if the string is found, return a ref to it
+    if (interned != NULL) {
+        // free the memory for the string that was passed in...
+        // ... don't need the duplicate string
+        FREE_ARRAY(char, chars, length + 1);
+        return interned;
+    }
+
     return allocateString(chars, length, hash);
 }
 
@@ -73,6 +87,12 @@ ObjString* takeString(char* chars, int length) {
 ObjString* copyString(const char* chars, int length) {
     // hash the copied string
     uint32_t hash = hashString(chars, length);
+
+    // look up the string in the string table first...
+    ObjString* interned = tableFindString(&vm.strings, chars, length, hash);
+    // ... if the string is found, return a ref to it
+    if (interned!= NULL)
+        return interned;
 
     // allocate a new array on the heap big enough...
     // ... for the string's chars and the trailing terminator

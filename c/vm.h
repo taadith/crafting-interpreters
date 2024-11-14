@@ -2,6 +2,7 @@
 #define clox_vm_h
 
 #include "chunk.h"
+#include "table.h"
 #include "value.h"
 
 #define STACK_MAX 256
@@ -17,6 +18,10 @@ typedef struct {
 
     // pts just past the last item
     Value* stackTop;
+
+    // hash table (more like hash set)...
+    // ... of "interned" strings
+    Table strings;
 
     // VM stores a ptr to the...
     // ... head of the linked list
