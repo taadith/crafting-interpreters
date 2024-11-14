@@ -217,6 +217,12 @@ static InterpretResult run(void) {
                 break;
             }
 
+            case OP_PRINT: {
+                printValue(pop());
+                printf("\n");
+                break;
+            }
+
             case OP_RETURN: {
                 // return pops the stack and prints...
                 // ... the top value before exiting
