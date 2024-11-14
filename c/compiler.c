@@ -114,6 +114,26 @@ static void consume(TokenType type, const char* msg) {
     errorAtCurrent(msg);
 }
 
+// returns true if the current...
+// ... token has the given type
+static bool check(TokenType type) {
+    return parser.current.type == type;
+}
+
+// consumes the current token and returns true...
+// ... if the current token has the given `type`
+static bool match(TokenType type) {
+    // current token doesn't match the...
+    // ... given `type` so return false
+    if (!check(type))
+        return false;
+
+    // current token has the given `type`...
+    // ... so we consume the token and return true
+    advance();
+    return true;
+}
+
 // appends a single byte, either an opcode...
 // ... or an operand to an instruction, to the chunk
 static void emitByte(uint8_t byte) {
@@ -166,6 +186,8 @@ static void endCompiler(void) {
 
 // function annotations
 static void expression(void);
+static void statement(void);
+static void declaration(void);
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 
@@ -357,6 +379,21 @@ static void expression(void) {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void printStatement(void) {
+    expression();
+    consume(TOKEN_SEMICOLON, "expected ';' after value");
+    emitByte(OP_PRINT);
+}
+
+static void declaration(void) {
+    statement();
+}
+
+static void statement(void) {
+    if (match(TOKEN_PRINT))
+        printStatement();
+}
+
 // returns whether or not compilation succeeded
 // compiler writes opcode into `chunk`
 bool compile(const char* src, Chunk* chunk) {
@@ -369,11 +406,8 @@ bool compile(const char* src, Chunk* chunk) {
     // "primes the pump" on the scanner
     advance();
 
-    // parse a single expression
-    expression();
-
-    // checking for sentinel EOF token
-    consume(TOKEN_EOF, "expected end of expression");
+    while(!match(TOKEN_EOF))
+        declaration();
 
     endCompiler();
 
