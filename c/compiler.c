@@ -391,8 +391,41 @@ static void printStatement(void) {
     emitByte(OP_PRINT);
 }
 
+// skip tokens indiscrimately until we reach something...
+// ... that looks like a statement boundary
+static void synchronize(void) {
+    parser.panicMode = false;
+
+    while(parser.current.type != TOKEN_EOF) {
+        if (parser.previous.type == TOKEN_SEMICOLON)
+            return;
+        
+        switch(parser.current.type) {
+            case TOKEN_CLASS:
+            case TOKEN_FUN:
+            case TOKEN_VAR:
+            case TOKEN_IF:
+            case TOKEN_WHILE:
+            case TOKEN_PRINT:
+            case TOKEN_RETURN:
+                return;
+            
+            // do nothing
+            default:
+                ;
+        }
+
+        advance();
+    }
+}
+
 static void declaration(void) {
     statement();
+
+    // hitting a compile error...
+    // ... causes a panic mode
+    if (parser.panicMode)
+        synchronize();
 }
 
 static void statement(void) {
