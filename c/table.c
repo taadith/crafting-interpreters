@@ -44,7 +44,7 @@ static Entry* findEntry(Entry* entries, int capacity,
             // found a tombstone, so have this be the entry
             else {
                 if (tombstone == NULL)
-                    tombstone == entry;
+                    tombstone = entry;
             }
         }
         // found the key!
@@ -81,7 +81,7 @@ static void adjustCapacity(Table* table, int capacity) {
 
     // initialize every element to be an empty bucket
     for(int i = 0; i < capacity; i++) {
-        entries[i].key == NULL;
+        entries[i].key = NULL;
         entries[i].value = NIL_VAL;
     }
 
@@ -175,7 +175,7 @@ void tableAddAll(Table* from, Table* to) {
 // what does this do??
 ObjString* tableFindString(Table* table, const char* chars,
                            int length, uint32_t hash) {
-    if (table -> count = 0)
+    if (table -> count == 0)
         return NULL;
     
     uint32_t index = hash % (table -> capacity);
@@ -197,4 +197,7 @@ ObjString* tableFindString(Table* table, const char* chars,
         // keep looking!
         index = (index + 1) % (table -> capacity);
     }
+
+    // unreachable
+    return NULL;
 }

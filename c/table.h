@@ -36,7 +36,7 @@ bool tableSet(Table* table, ObjString* key, Value value);
 bool tableDelete(Table* table, ObjString* key);
 
 // copies entries of one hash table to another
-bool tableAddAll(Table* from, Table* to);
+void tableAddAll(Table* from, Table* to);
 
 // what does this do??
 ObjString* tableFindString(Table* table, const char* chars,
