@@ -26,4 +26,7 @@ void initTable(Table* table);
 // frees the hash table
 void freeTable(Table* table);
 
+// adds given key/value pair to the given hash table
+bool tableSet(Table* table, ObjString* key, Value value);
+
 #endif
