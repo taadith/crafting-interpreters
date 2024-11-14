@@ -2,9 +2,12 @@
 #define clox_memory_h
 
 #include "common.h"
+#include "object.h"
 
 #define ALLOCATE(type, count) \
     (type*)reallocate(NULL, 0, sizeof(type) * (count))
+
+#define FREE(type, ptr) reallocate(ptr, sizeof(type), 0)
 
 // array starts at default size of 8, then doubles
 #define GROW_CAPACITY(capacity) \
@@ -18,5 +21,7 @@
     reallocate(ptr, sizeof(type) * (oldCount), 0)
 
 void* reallocate(void* ptr, size_t oldSize, size_t newSize);
+
+void freeObjects();
 
 #endif
