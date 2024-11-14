@@ -19,7 +19,8 @@ static Obj* allocateObject(size_t size, ObjType type) {
     // initializes the type
     object -> type = type;
 
-    // insert into linked list
+    // insert object as the new...
+    // ... head of the (singly) linked list
     object -> next = vm.objects;
     vm.objects = object;
 
