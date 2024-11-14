@@ -80,9 +80,12 @@ static void runtimeError(const char* format, ...) {
 
 void initVM() {
     resetStack();
+    vm.objects = NULL;
 }
 
-void freeVM() {}
+void freeVM() {
+    freeObjects();
+}
 
 static InterpretResult run() {
 // reads current byte pointed at by ip...
