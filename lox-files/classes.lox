@@ -1,0 +1,14 @@
+class Doughnut {
+    cook() {
+        print "fry until golden brown";
+    }
+}
+
+class BostonCream < Doughnut {
+    cook() {
+        super.cook();
+        print "pipe full of custard and coat w/ chocolate";
+    }
+}
+
+BostonCream().cook();

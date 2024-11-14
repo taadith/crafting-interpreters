@@ -1,0 +1,22 @@
+class Person {
+
+    init(name, age, dialogue) {
+        this.name = name;
+        this.age = age;
+        this.dialogue = dialogue;
+    }
+
+    talk() {
+        print this.dialogue;
+    }
+}
+
+class Student {
+    
+}
+
+var aadith = Person("aadith thiruvallarai", 22, "i love anya <3");
+var anya = Person("anya mohammed", 21, "i love u too <3");
+
+aadith.talk();
+anya.talk();
