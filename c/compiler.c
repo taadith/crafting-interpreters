@@ -379,6 +379,12 @@ static void expression(void) {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void expressionStatement(void) {
+    expression();
+    consume(TOKEN_SEMICOLON, "expected ';' after expression");
+    emitByte(OP_POP);
+}
+
 static void printStatement(void) {
     expression();
     consume(TOKEN_SEMICOLON, "expected ';' after value");
@@ -392,6 +398,8 @@ static void declaration(void) {
 static void statement(void) {
     if (match(TOKEN_PRINT))
         printStatement();
+    else
+        expressionStatement();
 }
 
 // returns whether or not compilation succeeded
