@@ -279,6 +279,13 @@ static void string(void) {
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
 
+static void namedVariable(Token name) {
+    // takes given identifier token and adds its lexeme to...
+    // ... the chunk's constant table as a string
+    uint8_t arg = identifierConstant(&name);
+    emitBytes(OP_GET_GLOBAL, arg);
+}
+
 static void variable(void) {
     namedVariable(parser.previous);
 }
