@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -209,6 +210,14 @@ static void beginScope(void) {
 
 static void endScope(void) {
     current -> scopeDepth--;
+
+    // when we pop a scope, we walk backward thru the local array...
+    // ... looking for any variables declared at the scope depth we just left
+    while(current -> localCount > 0 &&
+          current -> locals[current -> localCount - 1].depth > current -> scopeDepth) {
+        emitByte(OP_POP);
+        current -> localCount--;
+    }
 }
 
 // function annotations
@@ -432,9 +441,63 @@ static uint8_t identifierConstant(Token* name) {
                                            name -> length)));
 }
 
+static bool identifiersEqual(Token* a, Token* b) {
+    // check the length of both lexemes
+    if (a -> length != b -> length)
+        return false;
+    
+    // check the characters
+    return memcmp(a -> start, b -> start, a -> length) == 0;
+}
+
+static void addLocal(Token name) {
+    if (current -> localCount == UINT8_COUNT) {
+        error("too many local variables in function");
+        return;
+    }
+
+    // initializes next avail Local in...
+    // ... the compiler's array of variables
+    Local* local = &current -> locals[current -> localCount++];
+    
+    // store the variable's name and the depth...
+    // ... of the scope that owns the variable
+    local -> name = name;
+    local -> depth = current -> scopeDepth;
+}
+
+static void declareVariable(void) {
+    // bail out at the top-lvl global scope
+    if (current -> scopeDepth == 0)
+        return;
+    
+    // add local variable to compiler's list...
+    // ... of variables in the current scope
+    Token* name = &(parser.previous);
+
+    for(int i = current -> localCount - 1; i >= 0; i--) {
+        // current scope is always the end of the array
+        Local* local = &current -> locals[i];
+        if (local -> depth != -1 && local -> depth < current -> scopeDepth)
+            break;
+
+        if (identifiersEqual(name, &local -> name))
+            error("already a variable with this name in this scope");
+    }
+
+    addLocal(*name);
+}
+
 // requires next token to be an identifier
 static uint8_t parseVariable(const char* errorMsg) {
     consume(TOKEN_IDENTIFIER, errorMsg);
+
+    // "declare" the variable
+    declareVariable();
+
+    // exit if in a local scope
+    if (current -> scopeDepth > 0)
+        return 0;
 
     // index from constant table
     return identifierConstant(&parser.previous);
@@ -443,6 +506,10 @@ static uint8_t parseVariable(const char* errorMsg) {
 // outputs the bytecode instruction that defines...
 // ... the new variable and stores its initial value
 static void defineVariable(uint8_t global) {
+    // exit if in a local scope
+    if (current -> scopeDepth > 0)
+        return;
+
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
