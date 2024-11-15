@@ -35,9 +35,9 @@ typedef enum {
 } Precedence;
 
 // simple typedef for a function type that...
-// ... takes no args and returns nothing:
-// void <fn name>() {...}
-typedef void (*ParseFn)(void);
+// ... takes 1 bool arg and returns nothing:
+// void <fn name>(bool canAssign) {...}
+typedef void (*ParseFn)(bool canAssign);
 
 typedef struct {
     ParseFn prefix;
@@ -192,7 +192,7 @@ static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 static uint8_t identifierConstant(Token* name);
 
-static void binary(void) {
+static void binary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
     ParseRule* rule = getRule(operatorType);
 
@@ -237,7 +237,7 @@ static void binary(void) {
     }
 }
 
-static void literal(void) {
+static void literal(bool canAssign) {
     switch(parser.previous.type) {
         case TOKEN_FALSE:
             emitByte(OP_FALSE);
@@ -257,12 +257,12 @@ static void literal(void) {
 
 // grouping -> "(" expression ")" ;
 // "(" is assumed to have already been consumed
-static void grouping(void) {
+static void grouping(bool canAssign) {
     expression();
     consume(TOKEN_RIGHT_PAREN, "expected ')' after expression");
 }
 
-static void number(void) {
+static void number(bool canAssign) {
     // take lexeme stored in previous and use...
     // ... C STL to convert it to a double value
     double value = strtod(parser.previous.start, NULL);
@@ -275,19 +275,19 @@ static void number(void) {
 
 // takes string's chars directly from the lexeme and...
 // ... creates a string obj which is wrapped in a Value
-static void string(void) {
+static void string(bool canAssign) {
     // +1 and -2 trims leading and trailing quotation marks
     emitConstant(OBJ_VAL(copyString(parser.previous.start + 1, parser.previous.length - 2)));
 }
 
-static void namedVariable(Token name) {
+static void namedVariable(Token name, bool canAssign) {
     // takes given identifier token and adds its lexeme to...
     // ... the chunk's constant table as a string
     uint8_t arg = identifierConstant(&name);
     
     // equal sign after the identifier means we compile the...
     // ...  assigned valueand then emit an assignment instruction
-    if (match(TOKEN_EQUAL)) {
+    if (canAssign && match(TOKEN_EQUAL)) {
         expression();
         emitBytes(OP_SET_GLOBAL, arg);
     }
@@ -295,11 +295,11 @@ static void namedVariable(Token name) {
         emitBytes(OP_GET_GLOBAL, arg);
 }
 
-static void variable(void) {
-    namedVariable(parser.previous);
+static void variable(bool canAssign) {
+    namedVariable(parser.previous, canAssign);
 }
 
-static void unary(void) {
+static void unary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
 
     // compile the operand before we negate it
@@ -380,14 +380,20 @@ static void parsePrecedence(Precedence precedence) {
         return;
     }
 
-    prefixRule();
+    // passing along info that precedence is...
+    // ... low enough to allow assignment
+    bool canAssign = precedence <= PREC_ASSIGNMENT;
+    prefixRule(canAssign);
 
     // looking for an infix parser for the next token
     while(precedence <= (getRule(parser.current.type) -> precedence)) {
         advance();
         ParseFn infixRule = getRule(parser.previous.type) -> infix;
-        infixRule();
+        infixRule(canAssign);
     }
+
+    if (canAssign && match(TOKEN_EQUAL))
+        error("invalid assignment target");
 }
 
 // takes the given token and adds its lexeme...
