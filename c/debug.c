@@ -25,6 +25,12 @@ static int simpleInstruction(const char* name, int offset) {
     return offset + 1;
 }
 
+static int byteInstruction(const char* name, Chunk* chunk, int offset) {
+    uint8_t slot = chunk -> code[offset + 1];
+    printf("%-16s %4d\n", name, slot);
+    return offset + 2;
+}
+
 int getLine(Chunk* chunk, size_t instructionIndex) {
     // index is out of bounds
     if (instructionIndex < 0 || instructionIndex >= chunk -> rle.totalData)
@@ -61,6 +67,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return simpleInstruction("OP_FALSE", offset);
         case OP_POP:
             return simpleInstruction("OP_POP", offset);
+        case OP_GET_LOCAL:
+            return byteInstruction("OP_GET_LOCAL", chunk, offset);
+        case OP_SET_LOCAL:
+            return byteInstruction("OP_SET_LOCAL", chunk, offset);
         case OP_GET_GLOBAL:
             return constantInstruction("OP_GET_GLOBAL", chunk, offset);
         case OP_DEFINE_GLOBAL:
