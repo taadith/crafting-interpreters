@@ -82,12 +82,12 @@ void initVM(void) {
     resetStack();
     vm.objects = NULL;
 
-    // initialize the "interned" strings hash table
+    initTable(&vm.globals);
     initTable(&vm.strings);
 }
 
 void freeVM(void) {
-    // clean up the "interned" strings hash table
+    freeTable(&vm.globals);
     freeTable(&vm.strings);
 
     // clean up the objects on the heap
@@ -103,6 +103,10 @@ static InterpretResult run(void) {
 // ... treats the resulting # as an index...
 // ... and looks up the corresponding Value in the chunk's constant table
 #define READ_CONSTANT() (vm.chunk -> constants.values[READ_BYTE()])
+
+// reads a one-byte operand from the bytecode chunk...
+// ... treats the operand as an index into the chunk's constant table...
+#define READ_STRING() AS_STRING(READ_CONSTANT())
 
 // pop values off the stack...
 // ... and then push the result
@@ -160,6 +164,18 @@ static InterpretResult run(void) {
             case OP_POP:
                 pop();
                 break;
+            
+            case OP_DEFINE_GLOBAL: {
+                // get the name from the constant table
+                ObjString* name = READ_STRING();
+
+                // take value from top of stack and store...
+                // ... in a hash table w/ name as key
+                tableSet(&vm.globals, name, peek(0));
+
+                pop();
+                break;
+            }
             
             case OP_EQUAL: {
                 Value b = pop();
@@ -238,6 +254,7 @@ static InterpretResult run(void) {
 
 #undef READ_BYTE
 #undef READ_CONSTANT
+#undef READ_STRING
 #undef BINARY_OP
 }
 

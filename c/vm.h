@@ -19,6 +19,9 @@ typedef struct {
     // pts just past the last item
     Value* stackTop;
 
+    // hash table of global variables
+    Table globals;
+
     // hash table (more like hash set)...
     // ... of "interned" strings
     Table strings;
