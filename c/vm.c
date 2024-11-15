@@ -165,6 +165,22 @@ static InterpretResult run(void) {
                 pop();
                 break;
             
+            case OP_GET_GLOBAL: {
+                // get name from constant table
+                ObjString* name = READ_STRING();
+
+                // use name as a key to look up the variable's...
+                // ... value in the globals hash table
+                Value value;
+                if (!tableGet(&vm.globals, name, &value)) {
+                    runtimeError("undefined variable '%s'", name -> chars);
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+
+                push(value);
+                break;
+            }
+            
             case OP_DEFINE_GLOBAL: {
                 // get the name from the constant table
                 ObjString* name = READ_STRING();
