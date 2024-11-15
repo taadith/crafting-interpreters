@@ -45,6 +45,19 @@ typedef struct {
     Precedence precedence;
 } ParseRule;
 
+typedef struct {
+    Token name;
+    int depth;
+} Local;
+
+typedef struct {
+    Local locals[UINT8_COUNT];
+    int localCount;
+    int scopeDepth;
+} Compiler;
+
+Compiler* current = NULL;
+
 Chunk* compilingChunk;
 
 static Chunk* currentChunk(void) {
@@ -170,6 +183,12 @@ static void emitConstant(Value value) {
 // appends OP_RETURN to chunk
 static void emitReturn(void) {
     emitByte(OP_RETURN);
+}
+
+static void initCompiler(Compiler* compiler) {
+    compiler -> localCount = 0;
+    compiler -> scopeDepth = 0;
+    current = compiler;
 }
 
 static void endCompiler(void) {
@@ -506,6 +525,10 @@ static void statement(void) {
 // compiler writes opcode into `chunk`
 bool compile(const char* src, Chunk* chunk) {
     initScanner(src);
+
+    Compiler compiler;
+    initCompiler(&compiler);
+
     compilingChunk = chunk;
 
     parser.hadError = false;
