@@ -462,8 +462,11 @@ static bool identifiersEqual(Token* a, Token* b) {
 static int resolveLocal(Compiler* compiler, Token* name) {
     for(int i = compiler -> localCount - 1; i >= 0; i--) {
         Local* local = &compiler -> locals[i];
-        if (identifiersEqual(name, &local -> name))
+        if (identifiersEqual(name, &local -> name)) {
+            if (local -> depth == -1)
+                error("can't read local variable in its own initializer");
             return i;
+        }
     }
 
     return -1;
@@ -522,12 +525,19 @@ static uint8_t parseVariable(const char* errorMsg) {
     return identifierConstant(&parser.previous);
 }
 
+static void markInitialized(void) {
+    current -> locals[current -> localCount - 1].depth = 
+        current -> scopeDepth;
+}
+
 // outputs the bytecode instruction that defines...
 // ... the new variable and stores its initial value
 static void defineVariable(uint8_t global) {
     // exit if in a local scope
-    if (current -> scopeDepth > 0)
+    if (current -> scopeDepth > 0) {
+        markInitialized();
         return;
+    }
 
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
