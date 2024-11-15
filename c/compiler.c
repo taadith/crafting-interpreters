@@ -203,6 +203,14 @@ static void endCompiler(void) {
 
 }
 
+static void beginScope(void) {
+    current -> scopeDepth++;
+}
+
+static void endScope(void) {
+    current -> scopeDepth--;
+}
+
 // function annotations
 static void expression(void);
 static void statement(void);
@@ -447,6 +455,13 @@ static void expression(void) {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+static void block(void) {
+    while(!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+        declaration();
+    
+    consume(TOKEN_RIGHT_BRACE, "expected '}' after block");
+}
+
 static void varDeclaration(void) {
     // the variable name
     uint8_t global = parseVariable("expected variable name");
@@ -517,6 +532,11 @@ static void declaration(void) {
 static void statement(void) {
     if (match(TOKEN_PRINT))
         printStatement();
+    else if (match(TOKEN_LEFT_BRACE)) {
+        beginScope();
+        block();
+        endScope();
+    }
     else
         expressionStatement();
 }
