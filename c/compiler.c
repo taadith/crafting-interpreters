@@ -190,6 +190,7 @@ static void statement(void);
 static void declaration(void);
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
+static uint8_t identifierConstant(Token* name);
 
 static void binary(void) {
     TokenType operatorType = parser.previous.type;
@@ -283,7 +284,15 @@ static void namedVariable(Token name) {
     // takes given identifier token and adds its lexeme to...
     // ... the chunk's constant table as a string
     uint8_t arg = identifierConstant(&name);
-    emitBytes(OP_GET_GLOBAL, arg);
+    
+    // equal sign after the identifier means we compile the...
+    // ...  assigned valueand then emit an assignment instruction
+    if (match(TOKEN_EQUAL)) {
+        expression();
+        emitBytes(OP_SET_GLOBAL, arg);
+    }
+    else
+        emitBytes(OP_GET_GLOBAL, arg);
 }
 
 static void variable(void) {
@@ -413,7 +422,7 @@ static void expression(void) {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
-static void varDeclaration() {
+static void varDeclaration(void) {
     // the variable name
     uint8_t global = parseVariable("expected variable name");
 
