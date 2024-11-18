@@ -580,8 +580,11 @@ static void expressionStatement(void) {
 }
 
 static void printStatement(void) {
+    // evaluate expression
     expression();
     consume(TOKEN_SEMICOLON, "expected ';' after value");
+
+    // print the result
     emitByte(OP_PRINT);
 }
 
@@ -625,6 +628,7 @@ static void declaration(void) {
         synchronize();
 }
 
+// compiles a single declaration
 static void statement(void) {
     if (match(TOKEN_PRINT))
         printStatement();
