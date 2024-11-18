@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -44,6 +45,19 @@ typedef struct {
     ParseFn infix;
     Precedence precedence;
 } ParseRule;
+
+typedef struct {
+    Token name;
+    int depth;
+} Local;
+
+typedef struct {
+    Local locals[UINT8_COUNT];
+    int localCount;
+    int scopeDepth;
+} Compiler;
+
+Compiler* current = NULL;
 
 Chunk* compilingChunk;
 
@@ -172,6 +186,12 @@ static void emitReturn(void) {
     emitByte(OP_RETURN);
 }
 
+static void initCompiler(Compiler* compiler) {
+    compiler -> localCount = 0;
+    compiler -> scopeDepth = 0;
+    current = compiler;
+}
+
 static void endCompiler(void) {
     emitReturn();
 
@@ -182,6 +202,22 @@ static void endCompiler(void) {
         disassembleChunk(currentChunk(), "code");
 #endif
 
+}
+
+static void beginScope(void) {
+    current -> scopeDepth++;
+}
+
+static void endScope(void) {
+    current -> scopeDepth--;
+
+    // when we pop a scope, we walk backward thru the local array...
+    // ... looking for any variables declared at the scope depth we just left
+    while(current -> localCount > 0 &&
+          current -> locals[current -> localCount - 1].depth > current -> scopeDepth) {
+        emitByte(OP_POP);
+        current -> localCount--;
+    }
 }
 
 // function annotations
@@ -281,18 +317,27 @@ static void string(bool canAssign) {
 }
 
 static void namedVariable(Token name, bool canAssign) {
-    // takes given identifier token and adds its lexeme to...
-    // ... the chunk's constant table as a string
-    uint8_t arg = identifierConstant(&name);
+    uint8_t getOp, setOp;
+
+    int arg = resolveLocal(current, &name);
+    if (arg != -1) {
+        getOp = OP_GET_LOCAL;
+        setOp = OP_SET_LOCAL;
+    }
+    else {
+        arg = identifierConstant(&name);
+        getOp = OP_GET_GLOBAL;
+        setOp = OP_SET_GLOBAL;
+    }
     
     // equal sign after the identifier means we compile the...
     // ...  assigned valueand then emit an assignment instruction
     if (canAssign && match(TOKEN_EQUAL)) {
         expression();
-        emitBytes(OP_SET_GLOBAL, arg);
+        emitBytes(setOp, (uint8_t)arg);
     }
     else
-        emitBytes(OP_GET_GLOBAL, arg);
+        emitBytes(getOp, (uint8_t)arg);
 }
 
 static void variable(bool canAssign) {
@@ -405,17 +450,95 @@ static uint8_t identifierConstant(Token* name) {
                                            name -> length)));
 }
 
+static bool identifiersEqual(Token* a, Token* b) {
+    // check the length of both lexemes
+    if (a -> length != b -> length)
+        return false;
+    
+    // check the characters
+    return memcmp(a -> start, b -> start, a -> length) == 0;
+}
+
+static int resolveLocal(Compiler* compiler, Token* name) {
+    for(int i = compiler -> localCount - 1; i >= 0; i--) {
+        Local* local = &compiler -> locals[i];
+        if (identifiersEqual(name, &local -> name)) {
+            if (local -> depth == -1)
+                error("can't read local variable in its own initializer");
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+static void addLocal(Token name) {
+    if (current -> localCount == UINT8_COUNT) {
+        error("too many local variables in function");
+        return;
+    }
+
+    // initializes next avail Local in...
+    // ... the compiler's array of variables
+    Local* local = &current -> locals[current -> localCount++];
+    
+    // store the variable's name and the depth...
+    // ... of the scope that owns the variable
+    local -> name = name;
+    local -> depth = current -> scopeDepth;
+}
+
+static void declareVariable(void) {
+    // bail out at the top-lvl global scope
+    if (current -> scopeDepth == 0)
+        return;
+    
+    // add local variable to compiler's list...
+    // ... of variables in the current scope
+    Token* name = &(parser.previous);
+
+    for(int i = current -> localCount - 1; i >= 0; i--) {
+        // current scope is always the end of the array
+        Local* local = &current -> locals[i];
+        if (local -> depth != -1 && local -> depth < current -> scopeDepth)
+            break;
+
+        if (identifiersEqual(name, &local -> name))
+            error("already a variable with this name in this scope");
+    }
+
+    addLocal(*name);
+}
+
 // requires next token to be an identifier
 static uint8_t parseVariable(const char* errorMsg) {
     consume(TOKEN_IDENTIFIER, errorMsg);
+
+    // "declare" the variable
+    declareVariable();
+
+    // exit if in a local scope
+    if (current -> scopeDepth > 0)
+        return 0;
 
     // index from constant table
     return identifierConstant(&parser.previous);
 }
 
+static void markInitialized(void) {
+    current -> locals[current -> localCount - 1].depth = 
+        current -> scopeDepth;
+}
+
 // outputs the bytecode instruction that defines...
 // ... the new variable and stores its initial value
 static void defineVariable(uint8_t global) {
+    // exit if in a local scope
+    if (current -> scopeDepth > 0) {
+        markInitialized();
+        return;
+    }
+
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
@@ -426,6 +549,13 @@ static ParseRule* getRule(TokenType type) {
 static void expression(void) {
     // simply parse the lowest precedence lvl
     parsePrecedence(PREC_ASSIGNMENT);
+}
+
+static void block(void) {
+    while(!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+        declaration();
+    
+    consume(TOKEN_RIGHT_BRACE, "expected '}' after block");
 }
 
 static void varDeclaration(void) {
@@ -498,6 +628,11 @@ static void declaration(void) {
 static void statement(void) {
     if (match(TOKEN_PRINT))
         printStatement();
+    else if (match(TOKEN_LEFT_BRACE)) {
+        beginScope();
+        block();
+        endScope();
+    }
     else
         expressionStatement();
 }
@@ -506,6 +641,10 @@ static void statement(void) {
 // compiler writes opcode into `chunk`
 bool compile(const char* src, Chunk* chunk) {
     initScanner(src);
+
+    Compiler compiler;
+    initCompiler(&compiler);
+
     compilingChunk = chunk;
 
     parser.hadError = false;

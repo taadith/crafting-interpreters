@@ -165,6 +165,27 @@ static InterpretResult run(void) {
                 pop();
                 break;
             
+            case OP_GET_LOCAL: {
+                // takes a single-byte operand for the...
+                // ... stack slot where the local lives
+                uint8_t slot = READ_BYTE();
+
+                // loads value from the slot index and...
+                // ... then pushes it on top of the stack
+                push(vm.stack[slot]);
+                break;
+            }
+
+            case OP_SET_LOCAL: {
+                // takes a single-byte operand for the...
+                // ... stack slot where the local lives
+                uint8_t slot = READ_BYTE();
+
+                
+                vm.stack[slot] = peek(0);
+                break;
+            }
+            
             case OP_GET_GLOBAL: {
                 // get name from constant table
                 ObjString* name = READ_STRING();
