@@ -653,6 +653,7 @@ bool compile(const char* src, Chunk* chunk) {
     // "primes the pump" on the scanner
     advance();
 
+    // a program is a sequence of declarations
     while(!match(TOKEN_EOF))
         declaration();
 
