@@ -100,7 +100,7 @@ int disassembleInstruction(Chunk* chunk, int offset) {
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:
-            printf("unknown opcode %d\n", instruction);
+            printf("unknown opcode: %d\n", instruction);
             return offset + 1;
     }
 }
