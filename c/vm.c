@@ -293,7 +293,6 @@ static InterpretResult run(void) {
                 break;
             }
 
-
             // exit the interpreter
             case OP_RETURN: {
                 return INTERPRET_OK;
