@@ -197,6 +197,31 @@ static void emitReturn(void) {
     emitByte(OP_RETURN);
 }
 
+// emits a bytecode instruction and writes a...
+// placeholder instruction for the jump offset
+static int emitJump(uint8_t instruction) {
+    // emits the bytecode instruction
+    emitByte(instruction);
+
+    // two bytes for the jump offset operand
+    emitByte(0xff);
+    emitByte(0xff);
+    return (currentChunk() -> count) - 2;
+}
+
+// goes back into the bytecode and replaces the operand...
+// ... at the given location w/ the calculated jump offset
+static void patchJump(int offset) {
+    // -2 to adjust for the bytecode for the jump offset itself
+    int jump = currentChunk() -> count - offset - 2;
+
+    if (jump > UINT16_MAX)
+        error("too much code to jump over");
+    
+    currentChunk() -> code[offset] = (jump >> 8) & 0xff;
+    currentChunk() -> code[offset + 1] = (jump >> 8) & 0xff;
+}
+
 // starts up the compiler
 static void initCompiler(Compiler* compiler) {
     compiler -> localCount = 0;
@@ -627,6 +652,37 @@ static void expressionStatement(void) {
     emitByte(OP_POP);
 }
 
+static void ifStatement(void) {
+    // compile the condition expression to determine...
+    // ... whether to execute the then branch or skip
+    consume(TOKEN_LEFT_PAREN, "expected '(' after 'if'");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "expected ')' after condition");
+
+    // emit OP_JUMP_IF_FALSE instruction
+    int thenJump = emitJump(OP_JUMP_IF_FALSE);
+
+    // pop stack if condition is truthy
+    emitByte(OP_POP);
+
+    // compile the then body
+    statement();
+
+    int elseJump = emitJump(OP_JUMP);
+
+    patchJump(thenJump);
+
+    // pop stack at the beginning of else branch...
+    // ... if condition was falsey
+    emitByte(OP_POP);
+
+    // we should land here if condition is falsey
+    if (match(TOKEN_ELSE))
+        statement();
+
+    patchJump(elseJump);
+}
+
 static void printStatement(void) {
     // evaluate expression
     expression();
@@ -683,6 +739,8 @@ static void declaration(void) {
 static void statement(void) {
     if (match(TOKEN_PRINT))
         printStatement();
+    else if (match(TOKEN_IF))
+        ifStatement();
     else if (match(TOKEN_LEFT_BRACE)) {
         beginScope();
         block();

@@ -103,6 +103,11 @@ void freeVM(void) {
 // ... and looks up the corresponding Value in the chunk's constant table
 #define READ_CONSTANT() (vm.chunk -> constants.values[READ_BYTE()])
 
+// grabs next two bytes from the chunk and...
+// ... builds a 16-bit unsigned integer out of them
+#define READ_SHORT() \
+    (vm.ip += 2, (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]))
+
 // macro reads a one-byte operand from the bytecode chunk...
 // ... treats the operand as an index into the chunk's constant table...
 #define READ_STRING() AS_STRING(READ_CONSTANT())
@@ -294,6 +299,20 @@ static InterpretResult run(void) {
                 break;
             }
 
+            case OP_JUMP: {
+                uint16_t offset = READ_SHORT(); // 16 bits
+                vm.ip += offset;
+                break;
+            }
+
+            case OP_JUMP_IF_FALSE: {
+                uint16_t offset = READ_SHORT(); //16 bits
+                // if false apply the jump offset to ip
+                if (isFalsey(peek(0)))
+                    vm.ip += offset;
+                break;
+            }
+
             // exit the interpreter
             case OP_RETURN: {
                 return INTERPRET_OK;
@@ -304,6 +323,7 @@ static InterpretResult run(void) {
 
 // macros are all undeclared (i think?)
 #undef READ_BYTE
+#undef READ_SHORT
 #undef READ_CONSTANT
 #undef READ_STRING
 #undef BINARY_OP
