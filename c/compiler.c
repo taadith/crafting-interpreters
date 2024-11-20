@@ -47,13 +47,24 @@ typedef struct {
 } ParseRule;
 
 typedef struct {
+    // the name of the variable
     Token name;
+
+    // records the scope depth of the block...
+    // ... where the local variable was declared
     int depth;
 } Local;
 
 typedef struct {
+    // simple flat array of all locals that are in...
+    // ... scope during each point in the compilation proc
     Local locals[UINT8_COUNT];
+    
+    // tracks how many locals are in scope basically how...
+    // ... many of the slots in `locals` array are in use
     int localCount;
+    
+    // # of blocks surrounding the current code being compiled
     int scopeDepth;
 } Compiler;
 
@@ -162,7 +173,7 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
 
 // inserts an entry into the constant table
 static uint8_t makeConstant(Value value) {
-    // value's index in the constant tabler
+    // value's index in the constant table
     int constant = addConstant(currentChunk(), value);
 
     // we can't have more than 256 constants at a time
@@ -186,12 +197,14 @@ static void emitReturn(void) {
     emitByte(OP_RETURN);
 }
 
+// starts up the compiler
 static void initCompiler(Compiler* compiler) {
     compiler -> localCount = 0;
     compiler -> scopeDepth = 0;
     current = compiler;
 }
 
+// ends the compiler
 static void endCompiler(void) {
     emitReturn();
 
@@ -204,10 +217,14 @@ static void endCompiler(void) {
 
 }
 
+// beginning a scope means...
+// ... incrementing the current depth
 static void beginScope(void) {
     current -> scopeDepth++;
 }
 
+// ending a scope means...
+// ... decrementing the current depth
 static void endScope(void) {
     current -> scopeDepth--;
 
@@ -227,6 +244,7 @@ static void declaration(void);
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 static uint8_t identifierConstant(Token* name);
+static int resolveLocal(Compiler* compiler, Token* name);
 
 static void binary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
@@ -319,11 +337,16 @@ static void string(bool canAssign) {
 static void namedVariable(Token name, bool canAssign) {
     uint8_t getOp, setOp;
 
+    // try to find a local variable with the given name
     int arg = resolveLocal(current, &name);
+    
+    // local opcodes if a local variable found
     if (arg != -1) {
         getOp = OP_GET_LOCAL;
         setOp = OP_SET_LOCAL;
     }
+
+    // otherwise global opcodes
     else {
         arg = identifierConstant(&name);
         getOp = OP_GET_GLOBAL;
@@ -331,11 +354,12 @@ static void namedVariable(Token name, bool canAssign) {
     }
     
     // equal sign after the identifier means we compile the...
-    // ...  assigned valueand then emit an assignment instruction
+    // ...  assigned value and then emit an assignment instruction
     if (canAssign && match(TOKEN_EQUAL)) {
         expression();
         emitBytes(setOp, (uint8_t)arg);
     }
+    // emit access instruction
     else
         emitBytes(getOp, (uint8_t)arg);
 }
@@ -450,6 +474,8 @@ static uint8_t identifierConstant(Token* name) {
                                            name -> length)));
 }
 
+// returns true if both identifiers are the same...
+// ... otherwise false
 static bool identifiersEqual(Token* a, Token* b) {
     // check the length of both lexemes
     if (a -> length != b -> length)
@@ -459,10 +485,15 @@ static bool identifiersEqual(Token* a, Token* b) {
     return memcmp(a -> start, b -> start, a -> length) == 0;
 }
 
+// resolves a local variable
 static int resolveLocal(Compiler* compiler, Token* name) {
+    // walk the list of locals currently in scope
     for(int i = compiler -> localCount - 1; i >= 0; i--) {
         Local* local = &compiler -> locals[i];
+
+        // found same identifier
         if (identifiersEqual(name, &local -> name)) {
+            // variable is uninitialized
             if (local -> depth == -1)
                 error("can't read local variable in its own initializer");
             return i;
@@ -485,9 +516,13 @@ static void addLocal(Token name) {
     // store the variable's name and the depth...
     // ... of the scope that owns the variable
     local -> name = name;
-    local -> depth = current -> scopeDepth;
+
+    // indicates that the local ...
+    // ... variable is uninitialized
+    local -> depth = -1;
 }
 
+// compiler records the existence of the variable
 static void declareVariable(void) {
     // bail out at the top-lvl global scope
     if (current -> scopeDepth == 0)
@@ -497,12 +532,14 @@ static void declareVariable(void) {
     // ... of variables in the current scope
     Token* name = &(parser.previous);
 
+    // look for an existing variable w/ the same name
     for(int i = current -> localCount - 1; i >= 0; i--) {
         // current scope is always the end of the array
         Local* local = &current -> locals[i];
         if (local -> depth != -1 && local -> depth < current -> scopeDepth)
             break;
 
+        // found variable w/ same name in the current scope 
         if (identifiersEqual(name, &local -> name))
             error("already a variable with this name in this scope");
     }
@@ -512,12 +549,13 @@ static void declareVariable(void) {
 
 // requires next token to be an identifier
 static uint8_t parseVariable(const char* errorMsg) {
+    // requires next token to be an identifier
     consume(TOKEN_IDENTIFIER, errorMsg);
 
     // "declare" the variable
     declareVariable();
 
-    // exit if in a local scope
+    // exit the function if in a local scope
     if (current -> scopeDepth > 0)
         return 0;
 
@@ -525,6 +563,7 @@ static uint8_t parseVariable(const char* errorMsg) {
     return identifierConstant(&parser.previous);
 }
 
+// marks local variable as initialized
 static void markInitialized(void) {
     current -> locals[current -> localCount - 1].depth = 
         current -> scopeDepth;
@@ -533,12 +572,16 @@ static void markInitialized(void) {
 // outputs the bytecode instruction that defines...
 // ... the new variable and stores its initial value
 static void defineVariable(uint8_t global) {
-    // exit if in a local scope
+    // exit if in a local scope...
     if (current -> scopeDepth > 0) {
+        // marks the variable as initialized
         markInitialized();
         return;
     }
 
+    // ... otherwise output bytecode instruction...
+    // ... that defines the new variable...
+    // ... and stores its initial value
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
@@ -552,6 +595,8 @@ static void expression(void) {
 }
 
 static void block(void) {
+    // keeps parsing declarations until the closing brace...
+    // ... has been hit
     while(!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
         declaration();
     
@@ -559,7 +604,7 @@ static void block(void) {
 }
 
 static void varDeclaration(void) {
-    // the variable name
+    // variable name is compiled here
     uint8_t global = parseVariable("expected variable name");
 
     // initializing the variable
@@ -574,14 +619,18 @@ static void varDeclaration(void) {
 }
 
 static void expressionStatement(void) {
+    // evaluate the expression...
     expression();
     consume(TOKEN_SEMICOLON, "expected ';' after expression");
+
+    // ... and then discard the result
     emitByte(OP_POP);
 }
 
 static void printStatement(void) {
     // evaluate expression
     expression();
+    
     consume(TOKEN_SEMICOLON, "expected ';' after value");
 
     // print the result
@@ -628,7 +677,9 @@ static void declaration(void) {
         synchronize();
 }
 
-// compiles a single declaration
+// compiles a single declaration, called...
+// ... functions end in...
+// ... consume(TOKEN_SEMICOLON,"...");
 static void statement(void) {
     if (match(TOKEN_PRINT))
         printStatement();

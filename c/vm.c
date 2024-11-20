@@ -94,21 +94,20 @@ void freeVM(void) {
     freeObjects();
 }
 
-static InterpretResult run(void) {
-// reads current byte pointed at by ip...
+// macro reads current byte pointed at by ip...
 // ... and then advances the ip
 #define READ_BYTE() (*vm.ip++)
 
-// reads the next byte from the bytecode...
+// macro reads the next byte from the bytecode...
 // ... treats the resulting # as an index...
 // ... and looks up the corresponding Value in the chunk's constant table
 #define READ_CONSTANT() (vm.chunk -> constants.values[READ_BYTE()])
 
-// reads a one-byte operand from the bytecode chunk...
+// macro reads a one-byte operand from the bytecode chunk...
 // ... treats the operand as an index into the chunk's constant table...
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 
-// pop values off the stack...
+// macro pop values off the stack...
 // ... and then push the result
 #define BINARY_OP(valueType, op) \
     do { \
@@ -121,22 +120,22 @@ static InterpretResult run(void) {
         push(valueType(a op b)); \
     } while (false)
 
+static InterpretResult run(void) {
     for(;;) {
+// dynamic debugging if the flag is defined
+    #ifdef DEBUG_TRACE_EXECUTION
+            printf("\t\t");
+            
+            // print each value in the array
+            for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
+                printf("[ ");
+                printValue(*slot);
+                printf(" ]");
+            }
+            printf("\n");
 
-// dynamic debugging if flag is defined
-#ifdef DEBUG_TRACE_EXECUTION
-        printf("\t\t");
-        
-        // print each value in the array
-        for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
-            printf("[ ");
-            printValue(*slot);
-            printf(" ]");
-        }
-        printf("\n");
-
-        disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk -> code));
-#endif
+            disassembleInstruction(vm.chunk, (int)(vm.ip - vm.chunk -> code));
+    #endif
 
         // first byte of any instruction is the opcode
         uint8_t instruction;
@@ -190,14 +189,14 @@ static InterpretResult run(void) {
                 // get name from constant table
                 ObjString* name = READ_STRING();
 
-                // use name as a key to look up the variable's...
-                // ... value in the globals hash table
+                // global variable has never been defined
                 Value value;
                 if (!tableGet(&vm.globals, name, &value)) {
                     runtimeError("undefined variable '%s'", name -> chars);
                     return INTERPRET_RUNTIME_ERROR;
                 }
 
+                // otherwise push `value` onto stack
                 push(value);
                 break;
             }
@@ -218,6 +217,8 @@ static InterpretResult run(void) {
                 // get the name from the constant table
                 ObjString* name = READ_STRING();
 
+                // if variable hasn't been defined yet it's a...
+                // ... runtime error to try to assign to it
                 if (tableSet(&vm.globals, name, peek(0))) {
                     tableDelete(&vm.globals, name);
                     runtimeError("undefined variable '%s'", name -> chars);
@@ -299,12 +300,13 @@ static InterpretResult run(void) {
             }
         }
     }
+}
 
+// macros are all undeclared (i think?)
 #undef READ_BYTE
 #undef READ_CONSTANT
 #undef READ_STRING
 #undef BINARY_OP
-}
 
 InterpretResult interpret(const char* src) {
     // create a new empty chunk
