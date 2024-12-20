@@ -103,8 +103,13 @@ void freeVM(void) {
 // ... and looks up the corresponding Value in the chunk's constant table
 #define READ_CONSTANT() (vm.chunk -> constants.values[READ_BYTE()])
 
-// grabs next two bytes from the chunk and...
-// ... builds a 16-bit unsigned integer out of them
+// (1) increment the ip by 2 bytes:
+// (2) vm.ip[-2] has the upper byte of the 16-byte value
+//          -> 0b********--------
+// (3) vm.ip[-1] has the lower byte of the 16-byte value:
+//          -> 0b--------^^^^^^^^
+// (4) these are | together:
+//          -> 0b********^^^^^^^^
 #define READ_SHORT() \
     (vm.ip += 2, (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]))
 
@@ -239,6 +244,13 @@ static InterpretResult run(void) {
                 break;
             }
 
+            case OP_NOT_EQUAL: {
+                Value b = pop();
+                Value a = pop();
+                push(BOOL_VAL(!valuesEqual(a, b)));
+                break;
+            }
+
             case OP_GREATER:
                 BINARY_OP(BOOL_VAL, >);
                 break;
@@ -300,16 +312,32 @@ static InterpretResult run(void) {
             }
 
             case OP_JUMP: {
-                uint16_t offset = READ_SHORT(); // 16 bits
+                // reads 16-bit jump offset operand
+                uint16_t offset = READ_SHORT();
+
+                // apply jmp offset to ip
                 vm.ip += offset;
                 break;
             }
 
             case OP_JUMP_IF_FALSE: {
-                uint16_t offset = READ_SHORT(); //16 bits
-                // if false apply the jump offset to ip
+                // reads 16-bit jump offset operand
+                uint16_t offset = READ_SHORT();
+                
+                // if false, apply the jump offset to ip
                 if (isFalsey(peek(0)))
                     vm.ip += offset;
+
+                // otherwise, ip is left alone and execution...
+                // ... auto proceeds to the next instruction...
+                // ... following the jump instruction
+
+                break;
+            }
+
+            case OP_LOOP: {
+                uint16_t offset = READ_SHORT();
+                vm.ip -= offset;
                 break;
             }
 

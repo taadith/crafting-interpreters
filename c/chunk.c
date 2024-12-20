@@ -12,6 +12,7 @@ void initChunk(Chunk* chunk) {
     initValueArray(&chunk -> constants);
 }
 
+// writes an OpCode to a chunk
 void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     if (chunk -> capacity < chunk -> count + 1) {
         int oldCapacity = chunk -> capacity;
@@ -29,6 +30,7 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
     chunk -> count++;
 }
 
+// frees a chunk
 void freeChunk(Chunk* chunk) {
     FREE_ARRAY(uint8_t, chunk -> code, chunk -> capacity);
     freeRunLengthEncoding(&chunk -> rle);

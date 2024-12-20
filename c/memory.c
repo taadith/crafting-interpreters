@@ -29,6 +29,7 @@ static void freeObject(Obj* object) {
             
             // free the char array...
             FREE_ARRAY(char, string -> chars, string -> length + 1);
+            
             // ... and then we free the ObjString
             FREE(ObjString, object);
         }

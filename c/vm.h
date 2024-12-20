@@ -11,6 +11,7 @@ typedef struct {
     Chunk* chunk;
 
     // instruction ptr (ip) is defined as a byte ptr
+    // pts to address of current bytecode instruction
     uint8_t* ip;
 
     // stack is implemented as a double[]
