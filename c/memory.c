@@ -24,6 +24,16 @@ void* reallocate(void* ptr, size_t oldSize, size_t newSize) {
 
 static void freeObject(Obj* object) {
     switch(object -> type) {
+        case OBJ_FUNCTION: {
+            ObjFunction* function = (ObjFunction*) object;
+
+            // functions own their chunk, so we have to call...
+            // the Chunk's destructor-like func
+            freeChunk(&function -> chunk);
+
+            FREE(ObjFunction, object);
+            break;
+        }
         case OBJ_STRING: {
             ObjString* string = (ObjString*) object;
             

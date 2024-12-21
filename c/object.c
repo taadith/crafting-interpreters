@@ -47,6 +47,18 @@ static ObjString* allocateString(char* chars, int length,
     return string;
 }
 
+ObjFunction* newFunction() {
+    // allocate memory and initialize the object's header...
+    // ... so the VM knows what type of object it is
+    ObjFunction* function = ALLOCATE_OBJ(ObjFunction, OBJ_FUNCTION);
+    
+    // set the function up in a blank state
+    function -> arity = 0;
+    function -> name = NULL;
+    initChunk(&function -> chunk);
+
+    return function;
+
 // utilizes the FNV-1a algorithm
 static uint32_t hashString(const char* key, int length) {
     // start w/ an initial hash value
@@ -107,8 +119,16 @@ ObjString* copyString(const char* chars, int length) {
     return allocateString(heapChars, length, hash);
 }
 
+// a function knows it name, may as well print it!
+static void printFunction(ObjFunction* function) {
+    print("<fn %s>", function -> name -> chars);
+}
+
 void printObject(Value value) {
     switch (OBJ_TYPE(value)) {
+        case OBJ_FUNCTION:
+            printFunction(AS_FUNCTION(value));
+            break;
         case OBJ_STRING:
             printf("%s", AS_CSTRING(value));
     }
