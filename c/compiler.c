@@ -55,7 +55,22 @@ typedef struct {
     int depth;
 } Local;
 
+// how we keep track of what type of code...
+// ... we are looking at!
+typedef enum {
+    TYPE_FUNCTION,
+    TYPE_SCRIPT,
+} FunctionType;
+
 typedef struct {
+    // top-lvl code is placed in an...
+    // ... automatically defined function
+    ObjFunction* function;
+
+    // tells compiler whether we are looking...
+    // ... at top-lvl code or a function
+    FunctionType type;
+
     // simple flat array of all locals that are in...
     // ... scope during each point in the compilation proc
     Local locals[UINT8_COUNT];
@@ -70,11 +85,15 @@ typedef struct {
 
 Compiler* current = NULL;
 
-Chunk* compilingChunk;
-
 static Chunk* currentChunk(void) {
-    return compilingChunk;
+    return &current -> function -> chunk;
 }
+
+// Chunk* compilingChunk;
+//
+// static Chunk* currentChunk(void) {
+    // return compilingChunk;
+// }
 
 static void errorAt(Token* token, const char* msg) {
     // exit out of function unless we...
