@@ -2,7 +2,7 @@ CC = clang
 CC_CHECK_FLAGS = -fsyntax-only -Wall -Wextra -Wpedantic
 CC_COMPILE_FLAGS = -fsanitize=address
 
-C_FILES = main.c
+C_FILES = chunk.c main.c
 
 .PHONY: clox
 clox: check-clox compile-clox run-clox
