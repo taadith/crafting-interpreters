@@ -18,4 +18,7 @@ typedef struct {
 // initializes a new Chunk
 void initChunk(Chunk* chunk);
 
+// writes a byte to a Chunk
+void writeChunk(Chunk* chunk, uint8_t byte);
+
 #endif
