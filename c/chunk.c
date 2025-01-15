@@ -26,3 +26,12 @@ void writeChunk(Chunk* chunk, uint8_t byte) {
     // incrementing count
     chunk -> count++;
 }
+
+// frees the Chunk
+void freeChunk(Chunk* chunk) {
+    // deallocate all of the memory
+    FREE_ARRAY(uint8_t, chunk -> code, chunk -> capacity);
+
+    // zeroes out the fields
+    initChunk(chunk);
+}
