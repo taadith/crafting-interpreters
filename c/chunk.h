@@ -10,6 +10,8 @@ typedef enum {
 
 // wrapper around an array of bytes
 typedef struct {
+    int count;
+    int capacity;
     uint8_t* code;
 } Chunk;
 
