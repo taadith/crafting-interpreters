@@ -5,7 +5,15 @@
 
 // one-byte opcodes are defined here
 typedef enum {
-    OP_RETURN
+    OP_RETURN       // returns from current function
 } OpCode;
+
+// wrapper around an array of bytes
+typedef struct {
+    uint8_t* code;
+} Chunk;
+
+// initializes a new Chunk
+void initChunk(Chunk* chunk);
 
 #endif
