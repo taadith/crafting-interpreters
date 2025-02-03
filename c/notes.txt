@@ -28,3 +28,9 @@
 	      code for the representation, and a VM for execution
     
     14.2 Getting Started
+        - Added `main()` in main.c
+	- Added a handful of useful types and constants into common.h
+
+    14.3 Chunks of Instructions
+        - Added chunk.h and chunk.c to represent sequences of bytecode
+	- Added opcodes as an emum to chunk.h
