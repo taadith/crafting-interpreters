@@ -1,0 +1,30 @@
+14. Chunks of Bytecode
+    
+    14.1. Bytecode?
+    	
+	14.1.1. Why not walk the AST?
+	    - AST has already been written AND it's portable due to the JVM
+	    - but, it's NOT memory-efficient b/c each piece of syntax 
+	      becomes an AST node
+	
+	14.1.2. Why not compile to native code?
+	    - "Native code is a dense series of operations, encoded 
+	      directly in binary"
+	    - The issues lies in the chip-by-chip specs for native code and
+	      the amount of time it takes to learn these specs just for one
+	      chip!!!
+	
+	14.1.3 What is bytecode?
+	    - a tree-walk interpreter is simple, portable, but slow
+	    - native code is complex, platform-specific, but fast
+	    - bytecode resembles machine code
+	        i. it's a dense, linear sequence of binary instructions
+	    - bytecode, itself, runs on an emulator: a simulated chip 
+	      written in software that interprets the bytecode, a VM
+	      (virtual machine)
+	    - in jlox, we wrote a parser for the front end, syntax trees
+	      for the representation, and an interpreter for execution
+	    - in clox, we will write a compiler for the front end, byte-
+	      code for the representation, and a VM for execution
+    
+    14.2 Getting Started
