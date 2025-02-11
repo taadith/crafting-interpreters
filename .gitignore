@@ -3,3 +3,6 @@
 
 #ignore c binary file
 *main
+
+#ignore .dSYM folder
+main.dSYM/
