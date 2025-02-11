@@ -12,9 +12,17 @@ void disassembleChunk(Chunk* chunk, const char* name) {
     }
 }
 
-int disassembleInstruction(Chunk* chunk, int offset) {
-    printf("%04d ", offset);
+static int simpleInstruction(const char* name, int offset) {
+    printf("%s\n", name);
+    return offset + 1;
+}
 
+int disassembleInstruction(Chunk* chunk, int offset) {
+    // prints byte offset of the given instruction...
+    // ... telling us where in the chunk the instruction is
+    printf("%04d ", offset);
+    
+    // read the opcode
     uint8_t instruction = chunk -> code[offset];
     switch(instruction) {
         case OP_RETURN:
