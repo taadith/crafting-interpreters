@@ -21,4 +21,7 @@ void initChunk(Chunk* chunk);
 // appends a byte to the chunk
 void writeChunk(Chunk* chunk, uint8_t byte);
 
+// frees the chunk
+void freeChunk(Chunk* chunk);
+
 #endif
