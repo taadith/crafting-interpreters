@@ -11,7 +11,7 @@ void initChunk(Chunk* chunk) {
 }
 
 // appends a byte to the chunk
-void writeChunk(Chunk* chunk) {
+void writeChunk(Chunk* chunk, uint8_t byte) {
     // if the array doesn't have capacity for the new byte
     if (chunk -> capacity < chunk -> count + 1) {
         int oldCapacity = chunk -> capacity;
@@ -23,4 +23,12 @@ void writeChunk(Chunk* chunk) {
     // BAU (always going to append a byte)
     chunk -> code[chunk -> count] = byte;
     chunk -> count++;
+}
+
+// frees the chunk
+void freeChunk(Chunk* chunk) {
+    FREE_ARRAY(uint8_t, chunk -> code, chunk -> capacity);
+
+    // zeroes out the values, no dangling ptrs
+    initChunk(chunk);
 }
