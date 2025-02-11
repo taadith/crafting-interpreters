@@ -1,28 +1,18 @@
-CC = clang
-CC_CHECK_FLAGS = -fsyntax-only -Wall -Wextra -Wpedantic
-CC_COMPILE_FLAGS = -fsanitize=address
+CC := clang
+C_FLAGS1 := -Wall -Wextra -Wpedantic -g -c
+C_FLAGS2 := -g
 
-C_FILES = chunk.c debug.c main.c memory.c
+OBJ_FILES := chunk.o debug.o main.o memory.o
 
-.PHONY: clox
-clox: check-clox compile-clox run-clox
+# link the object files together
 
-.PHONY: run-clox
-run-clox:
-	MallocNanoZone=0 ./main
+main: $(OBJ_FILES)
+	$(CC) $(C_FLAGS2) $^ -o main
 
-.PHONY: lldb-clox
-lldb-clox:
-	$(CC) -o main $(C_FILES) -g && lldb ./main
+# compile each src file to an object
 
-.PHONY: compile-clox
-compile-clox:
-	$(CC) -o main $(C_FILES) $(CC_COMPILE_FLAGS)
+$(OBJ_FILES): %.o: %.c
+	$(CC) $(C_FLAGS1) $^ -o $@
 
-.PHONY: check-clox
-check-clox:
-	$(CC) $(C_FILES) $(CC_CHECK_FLAGS)
-
-.PHONY: clean
 clean:
-	rm -f ./c/main
+	rm -f ./main && rm -f ./*.o
