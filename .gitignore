@@ -6,3 +6,6 @@
 
 #ignore .dSYM folder
 main.dSYM/
+
+#ignore *.o files
+*.o
