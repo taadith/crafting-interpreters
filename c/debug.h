@@ -8,3 +8,5 @@ void disassembleChunk(Chunk* chunk, const char* name);
 
 // disassembles 
 int disassembleInstruction(Chunk* chunk, int offset);
+
+#endif
