@@ -1,27 +1,21 @@
-CC = clang
-CC_CHECK_FLAGS = -fsyntax-only -Wall -Wextra -Wpedantic
-CC_COMPILE_FLAGS = -fsanitize=address
+CC := clang
+C_FLAGS1 := -Wall -Wextra -Wpedantic -g -c
+C_FLAGS2 := -g
 
-C_FILES = chunk.c debug.c main.c memory.c
+OBJ_FILES := chunk.o debug.o main.o memory.o
 
-.PHONY: clox
-clox: check-clox compile-clox run-clox
+# link the object files together
 
-.PHONY: run-clox
-run-clox:
-    cd ./c && MallocNanoZone=0 ./main
+main: $(OBJ_FILES)
+	cd ./c && $(CC) $(C_FLAGS2) $^ -o main
 
-.PHONY: lldb-clox
-lldb-clox:
-    cd ./c && $(CC) -o main $(C_FILES) -g && lldb ./main
+# compile each src file to an object
 
-.PHONY: compile-clox
-compile-clox:
-    cd ./c && $(CC) -o main $(C_FILES) $(CC_COMPILE_FLAGS)
+$(OBJ_FILES): %.o: %.c
+	cd ./c && $(CC) $(C_FLAGS1) $^ -o $@
 
-.PHONY: check-clox
-check-clox:
-    cd ./c && $(CC) $(C_FILES) $(CC_CHECK_FLAGS)
+clean:
+	cd ./c && rm -f ./main && rm -f ./*.o
 
 JLOX_DIR = ./com/craftinginterpreters/lox
 JLOX_TOOL_DIR = ./com/craftinginterpreters/tool
