@@ -5,10 +5,10 @@
 
 // initializes a RLE
 void initRunLengthEncoding(RunLengthEncoding* rle) {
-    encoding -> values = NULL;
-    encoding -> lengths = NULL;
-    encoding -> count = 0;
-    encoding -> capacity = 0;
+    rle -> values = NULL;
+    rle -> lengths = NULL;
+    rle -> count = 0;
+    rle -> capacity = 0;
 }
 
 // writes an integer to the RLE
@@ -49,6 +49,6 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
 // frees the RLE
 void freeRunLengthEncoding(RunLengthEncoding* rle) {
     FREE_ARRAY(int, rle -> values, rle -> capacity);
-    FREE_ARRAY(int, rle -> values, rle -> capacity);
+    FREE_ARRAY(int, rle -> lengths, rle -> capacity);
     initRunLengthEncoding(rle);
 }
