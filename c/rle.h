@@ -20,4 +20,10 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value);
 // frees the RLE
 void freeRunLengthEncoding(RunLengthEncoding* rle);
 
+// grabs value at index
+int getValueAtIndex(RunLengthEncoding* rle, int index);
+
+// prints the RLE
+void printRunLengthEncoding(RunLengthEncoding* rle, const char* name);
+
 #endif

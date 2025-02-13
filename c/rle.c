@@ -27,8 +27,8 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
     }
     
     // adding a pre-existing value
-    else if (rle -> values[rle -> count] == value) {
-        rle -> lengths[rle -> count]++;
+    else if (rle -> values[rle -> count - 1] == value) {
+        rle -> lengths[rle -> count - 1]++;
     }
 
     // adding a new value
@@ -41,6 +41,7 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
                                    oldCapacity, rle -> capacity);
 
         rle -> values[rle -> count] = value;
+        rle -> lengths[rle -> count] = 1;
         rle -> count++;
 
     }
@@ -51,4 +52,37 @@ void freeRunLengthEncoding(RunLengthEncoding* rle) {
     FREE_ARRAY(int, rle -> values, rle -> capacity);
     FREE_ARRAY(int, rle -> lengths, rle -> capacity);
     initRunLengthEncoding(rle);
+}
+
+// grabs value at index
+int getValueAtIndex(RunLengthEncoding* rle, int index) {
+    int total_count = 0;
+    int rle_index = 0;
+    do {
+        total_count += rle -> lengths[rle_index];
+        rle_index++;
+    } while (total_count - 1 < index);
+    return rle -> values[rle_index - 1];
+}
+
+// prints the RLE
+void printRunLengthEncoding(RunLengthEncoding* rle, const char* name) {
+    printf("%s:\n", name);
+    printf("Values --> \n[");
+    for(int i = 0; i < rle -> count; i++) {
+        printf("%d", rle -> values[i]);
+        if (i < rle -> count - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+
+    printf("Lengths --> \n[");
+    for(int i = 0; i < rle -> count; i++) {
+        printf("%d", rle -> lengths[i]);
+        if (i < rle -> count - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
 }
