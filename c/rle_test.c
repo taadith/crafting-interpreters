@@ -60,6 +60,8 @@ void test_rle_medium1(void) {
     writeRunLengthEncoding(&rle, 4);
     writeRunLengthEncoding(&rle, 5);
     writeRunLengthEncoding(&rle, 5);
+    writeRunLengthEncoding(&rle, 6);
+    writeRunLengthEncoding(&rle, 6);
     writeRunLengthEncoding(&rle, 7);
     writeRunLengthEncoding(&rle, 7);
     writeRunLengthEncoding(&rle, 8);
@@ -119,6 +121,36 @@ void test_getValueAtIndex_easy3(void) {
     }
     freeRunLengthEncoding(&rle);
 }
+
+void test_getValueAtIndex_medium1(void) {
+    RunLengthEncoding rle;
+    initRunLengthEncoding(&rle);
+
+    writeRunLengthEncoding(&rle, 1);
+    writeRunLengthEncoding(&rle, 1);
+    writeRunLengthEncoding(&rle, 2);
+    writeRunLengthEncoding(&rle, 2);
+    writeRunLengthEncoding(&rle, 3);
+    writeRunLengthEncoding(&rle, 3);
+    writeRunLengthEncoding(&rle, 4);
+    writeRunLengthEncoding(&rle, 4);
+    writeRunLengthEncoding(&rle, 5);
+    writeRunLengthEncoding(&rle, 5);
+    writeRunLengthEncoding(&rle, 6);
+    writeRunLengthEncoding(&rle, 6);
+    writeRunLengthEncoding(&rle, 7);
+    writeRunLengthEncoding(&rle, 7);
+    writeRunLengthEncoding(&rle, 8);
+    writeRunLengthEncoding(&rle, 8);
+    writeRunLengthEncoding(&rle, 9);
+    writeRunLengthEncoding(&rle, 9);
+    
+    for(int i = 0; i < 18; i++) {
+        printf("The value at index %d is %d\n", i, getValueAtIndex(&rle, i));
+    }
+    freeRunLengthEncoding(&rle);
+}
+
 int main(void) {
     // // basic tests
     // test_rle_easy1();
@@ -141,6 +173,10 @@ int main(void) {
     
     printf("test_getValueAtIndex_easy3:\n");
     test_getValueAtIndex_easy3();
+    printf("\n");
+    
+    printf("test_getValueAtIndex_medium1:\n");
+    test_getValueAtIndex_medium1();
     printf("\n");
 
     return 0;

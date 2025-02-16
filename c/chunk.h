@@ -2,6 +2,7 @@
 #define clox_chunk_h
 
 #include "common.h"
+#include "rle.h"
 #include "value.h"
 
 // defines our one-byte opcodes (operation codes)
@@ -19,6 +20,9 @@ typedef struct {
     
     // parallels the bytecode to say what line it's on
     int* lines;
+    RunLengthEncoding rle_lines;
+
+    // constants pool
     ValueArray constants;
 } Chunk;
 
@@ -30,6 +34,9 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line);
 
 // frees the chunk
 void freeChunk(Chunk* chunk);
+
+// grab the line value at index of rle_lines
+int getLine(Chunk* chunk, int offset);
 
 // add a constant to the chunk
 int addConstant(Chunk* chunk, Value value);

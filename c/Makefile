@@ -22,4 +22,4 @@ $(RLE_TEST_OBJ_FILES): %.o: %.c
 	$(CC) $(C_FLAGS1) $^ -o $@
 
 clean:
-	rm -f ./main && rm -f ./*.o
+	rm -f ./main ./rle_test ./*.o

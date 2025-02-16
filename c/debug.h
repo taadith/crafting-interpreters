@@ -6,7 +6,8 @@
 // disassembles all the instructions in the chunk
 void disassembleChunk(Chunk* chunk, const char* name);
 
-// disassembles 
-int disassembleInstruction(Chunk* chunk, int offset);
+// disassembles one instruction in the chunk
+// int disassembleInstruction(Chunk* chunk, int offset);
+int disassembleInstructionWithRLE(Chunk* chunk, int offset);
 
 #endif

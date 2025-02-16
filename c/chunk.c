@@ -8,7 +8,10 @@ void initChunk(Chunk* chunk) {
     chunk -> count = 0;
     chunk -> capacity = 0;
     chunk -> code = NULL;
+    
+    // initializes the RLE for lines
     chunk -> lines = NULL;
+    initRunLengthEncoding(&chunk -> rle_lines);
 
     // initialize the ValueArray
     initValueArray(&chunk -> constants);
@@ -28,7 +31,11 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
 
     // BAU (always going to append a byte)
     chunk -> code[chunk -> count] = byte;
+
+    // adding a line
     chunk -> lines[chunk -> count] = line;
+    writeRunLengthEncoding(&chunk -> rle_lines, line);
+
     chunk -> count++;
 }
 
@@ -39,6 +46,7 @@ void freeChunk(Chunk* chunk) {
     
     // frees lines
     FREE_ARRAY(int, chunk -> lines, chunk -> capacity);
+    freeRunLengthEncoding(&chunk -> rle_lines);
 
     // frees constants (ValueArray)
     freeValueArray(&chunk -> constants);
@@ -46,6 +54,11 @@ void freeChunk(Chunk* chunk) {
 
     // zeroes out the values, no dangling ptrs
     initChunk(chunk);
+}
+
+// grab the line value at index of rle_lines
+int getLine(Chunk* chunk, int offset) {
+    return getValueAtIndex(&chunk -> rle_lines, offset);
 }
 
 // add a constant to the chunk
