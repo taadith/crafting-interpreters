@@ -8,6 +8,7 @@
 // defines our one-byte opcodes (operation codes)
 typedef enum {
     OP_CONSTANT,
+    OP_CONSTANT_LONG,
     OP_RETURN
 } OpCode;
 
@@ -19,7 +20,6 @@ typedef struct {
     uint8_t* code;  // uint8_t is 8 bits == 1 byte
     
     // parallels the bytecode to say what line it's on
-    int* lines;
     RunLengthEncoding rle_lines;
 
     // constants pool
@@ -40,5 +40,8 @@ int getLine(Chunk* chunk, int offset);
 
 // add a constant to the chunk
 int addConstant(Chunk* chunk, Value value);
+
+// appends a 24-bit constant to the chunk
+void writeConstant(Chunk* chunk, Value value, int line) {
 
 #endif

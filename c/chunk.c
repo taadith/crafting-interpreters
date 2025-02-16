@@ -10,7 +10,6 @@ void initChunk(Chunk* chunk) {
     chunk -> code = NULL;
     
     // initializes the RLE for lines
-    chunk -> lines = NULL;
     initRunLengthEncoding(&chunk -> rle_lines);
 
     // initialize the ValueArray
@@ -68,4 +67,14 @@ int addConstant(Chunk* chunk, Value value) {
     // return index where constant was appended...
     // ... to locate later
     return chunk -> constants.count - 1;
+}
+
+// appends a Value to the chunk
+void writeConstant(Chunk* chunk, Value value, int line) {
+    // add value to constants pool
+    int valueIndex = addConstant(chunk, value);
+
+    // write constant value to chunk
+    writeChunk(chunk, OP_CONSTANT_LONG, line);
+    writeChunk(chunk, valueIndex, line);
 }
