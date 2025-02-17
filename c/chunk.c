@@ -24,15 +24,12 @@ void writeChunk(Chunk* chunk, uint8_t byte, int line) {
         chunk -> capacity = GROW_CAPACITY(oldCapacity);
         chunk -> code = GROW_ARRAY(uint8_t, chunk -> code,
             oldCapacity, chunk -> capacity);
-        chunk -> lines = GROW_ARRAY(int, chunk -> lines,
-            oldCapacity, chunk -> capacity);
     }
 
     // BAU (always going to append a byte)
     chunk -> code[chunk -> count] = byte;
 
     // adding a line
-    chunk -> lines[chunk -> count] = line;
     writeRunLengthEncoding(&chunk -> rle_lines, line);
 
     chunk -> count++;
@@ -44,7 +41,6 @@ void freeChunk(Chunk* chunk) {
     FREE_ARRAY(uint8_t, chunk -> code, chunk -> capacity);
     
     // frees lines
-    FREE_ARRAY(int, chunk -> lines, chunk -> capacity);
     freeRunLengthEncoding(&chunk -> rle_lines);
 
     // frees constants (ValueArray)

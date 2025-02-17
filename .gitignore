@@ -2,6 +2,7 @@
 *.class
 
 #ignore c binary file
+*chunk_test
 *main
 *rle_test
 
