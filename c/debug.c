@@ -30,23 +30,6 @@ static int constantInstruction(const char* name, Chunk* chunk,
     return offset + 2;
 }
 
-static int constantLongInstruction(const char* name, Chunk* chunk,
-                               int offset) {
-    // grab the constant index
-    uint8_t constant_index = chunk -> code[offset + 1];
-
-    // print out the name of the opcode and constant index
-    printf("%-16s %4d '", name, constant_index);
-
-    // look up the actual constant value
-    printValue(chunk -> constants.values[constant_index]);
-
-    printf("'\n");
-    
-    // skips past opcode and constant index
-    return offset + 2;
-}
-
 static int simpleInstruction(const char* name, int offset) {
     printf("%s\n", name);
 
@@ -98,8 +81,6 @@ int disassembleInstructionWithRLE(Chunk* chunk, int offset) {
     switch(instruction) {
         case OP_CONSTANT:
             return constantInstruction("OP_CONSTANT", chunk, offset);
-        case OP_CONSTANT_LONG:
-            return constantLongInstruction("OP_CONSTANT_LONG", chunk, offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);
         default:

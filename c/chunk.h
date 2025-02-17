@@ -8,7 +8,6 @@
 // defines our one-byte opcodes (operation codes)
 typedef enum {
     OP_CONSTANT,
-    OP_CONSTANT_LONG,
     OP_RETURN
 } OpCode;
 
@@ -40,8 +39,5 @@ int getLine(Chunk* chunk, int offset);
 
 // add a constant to the chunk
 int addConstant(Chunk* chunk, Value value);
-
-// appends a 24-bit constant to the chunk
-void writeConstant(Chunk* chunk, Value value, int line) {
 
 #endif
