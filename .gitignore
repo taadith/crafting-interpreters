@@ -3,6 +3,7 @@
 
 #ignore c binary file
 *main
+*rle_test
 
 #ignore .dSYM folder
 main.dSYM/
