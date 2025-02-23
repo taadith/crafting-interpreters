@@ -46,7 +46,6 @@ void freeChunk(Chunk* chunk) {
     // frees constants (ValueArray)
     freeValueArray(&chunk -> constants);
 
-
     // zeroes out the values, no dangling ptrs
     initChunk(chunk);
 }
@@ -56,11 +55,43 @@ int getLine(Chunk* chunk, int offset) {
     return getValueAtIndex(&chunk -> rle_lines, offset);
 }
 
-// add a constant to the chunk
+// adds a constant to the constant pool...
+// ... and returns its index
 int addConstant(Chunk* chunk, Value value) {
     writeValueArray(&chunk -> constants, value);
     
     // return index where constant was appended...
     // ... to locate later
     return chunk -> constants.count - 1;
+}
+
+// writes an appropriate constant opcode to the chunk...
+// ... and the value's index appropriately
+void writeConstant(Chunk* chunk, Value value, int line) {
+    // adding the value to the constant pool...
+    // ... and grabbing it's index
+    int valueIndex = addConstant(chunk, value);
+
+    // writing an OP_CONSTANT
+    if (valueIndex < 256) {
+        // write the opcode and valueIndex
+        writeChunk(chunk, OP_CONSTANT, line);
+        writeChunk(chunk, valueIndex, line);
+    }
+
+    // writing an OP_CONSTANT_LONG
+    else if (valueIndex >= 256) {
+        // we know the index, which needs to be split...
+        // ... into three bytes
+        int first_byte = (valueIndex & (255 << 16)) >> 16;
+        int second_byte = (valueIndex & (255 << 8)) >> 8;
+        int third_byte = valueIndex & 255;
+
+        // write the opcode and split up valueIndex
+        writeChunk(chunk, OP_CONSTANT_LONG, line);
+        writeChunk(chunk, first_byte, line);
+        writeChunk(chunk, second_byte, line);
+        writeChunk(chunk, third_byte, line);
+    }
+
 }

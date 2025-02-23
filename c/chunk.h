@@ -8,6 +8,7 @@
 // defines our one-byte opcodes (operation codes)
 typedef enum {
     OP_CONSTANT,
+    OP_CONSTANT_LONG,
     OP_RETURN
 } OpCode;
 
@@ -21,7 +22,7 @@ typedef struct {
     // parallels the bytecode to say what line it's on
     RunLengthEncoding rle_lines;
 
-    // constants pool
+    // stores the constant pool
     ValueArray constants;
 } Chunk;
 
@@ -37,7 +38,11 @@ void freeChunk(Chunk* chunk);
 // grab the line value at index of rle_lines
 int getLine(Chunk* chunk, int offset);
 
-// add a constant to the chunk
+// adds a constant to the constant pool...
+// ... and returns its index
 int addConstant(Chunk* chunk, Value value);
+
+// writes an OP_CONSTANT_LONG to the chunk
+void writeConstant(Chunk* chunk, Value value, int line);
 
 #endif
