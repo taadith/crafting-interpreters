@@ -34,8 +34,30 @@ void test_writing_easy2(void) {
     freeChunk(&chunk);
 }
 
-int main(int argc, const char* argv[]) {
-    test_writing_easy1();
-    test_writing_easy2();
+void test_writing_medium_n(int n) {
+    Chunk chunk;
+    initChunk(&chunk);
+
+    for(int i = 0; i < n; i++)
+        writeConstant(&chunk, (i + 1) * .3, i + 1);
+
+    disassembleChunk(&chunk, "test-writing-medium_n");
+    freeChunk(&chunk);
+}
+
+int main(void) {
+     // // easy tests for writing to chunk
+     // test_writing_easy1();
+     // test_writing_easy2();
+    
+    Chunk chunk;
+    initChunk(&chunk);
+
+    for(int i = 0; i < 255; i++)
+        writeConstant(&chunk, (i + 1) * .3, i + 1);
+
+    disassembleChunk(&chunk, "test-writing-medium_n");
+    freeChunk(&chunk);
+
     return 0;
 }
