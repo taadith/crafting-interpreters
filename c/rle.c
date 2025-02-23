@@ -33,17 +33,18 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
 
     // adding a new value
     else {
-        int oldCapacity = rle -> capacity;
-        rle -> capacity = GROW_CAPACITY(oldCapacity);
-        rle -> values = GROW_ARRAY(int, rle -> values,
-                                   oldCapacity, rle -> capacity);
-        rle -> lengths = GROW_ARRAY(int, rle -> lengths,
-                                   oldCapacity, rle -> capacity);
+        if (rle -> capacity < rle -> count + 1) {
+            int oldCapacity = rle -> capacity;
+            rle -> capacity = GROW_CAPACITY(oldCapacity);
+            rle -> values = GROW_ARRAY(int, rle -> values,
+                                       oldCapacity, rle -> capacity);
+            rle -> lengths = GROW_ARRAY(int, rle -> lengths,
+                                       oldCapacity, rle -> capacity);
 
+        }
         rle -> values[rle -> count] = value;
         rle -> lengths[rle -> count] = 1;
         rle -> count++;
-
     }
 }
 
