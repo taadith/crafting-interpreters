@@ -15,6 +15,8 @@ int main(void) {
     writeChunk(&chunk, OP_RETURN, 124);
     
     disassembleChunk(&chunk, "test chunk");
+    
+    interpret(&vm, &chunk);
 
     freeVM(&vm);
     freeChunk(&chunk);
