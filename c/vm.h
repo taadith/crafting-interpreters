@@ -5,10 +5,10 @@
 
 typedef struct {
     Chunk* chunk;
-} VM:
+} VM;
 
-void initVM();
+void initVM(VM* vm);
 
-void freeVM();
+void freeVM(VM* vm);
 
 #endif

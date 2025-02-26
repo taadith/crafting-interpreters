@@ -2,12 +2,12 @@
 #include "vm.h"
 
 // TODO: replace static VM with dynamic VM!
-VM vm;
+// VM vm;
 
-void initVM() {
+void initVM(VM* vm) {
 
 }
 
-void freeVM(); {
+void freeVM(VM* vm) {
 
 }
