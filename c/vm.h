@@ -2,6 +2,9 @@
 #define clox_vm_h
 
 #include "chunk.h"
+#include "value.h"
+
+#define STACK_MAX 256
 
 typedef struct {
     Chunk* chunk;
@@ -9,7 +12,12 @@ typedef struct {
     // pts to next opcode to be used...
     // ... note: faster to deref a ptr than...
     // ... look up an element in an array by index
-    uint8_t* ip; 
+    uint8_t* ip;
+
+    Value stack[STACK_MAX];
+
+    // pts right above the top of the stack
+    Value* stackTop;
 } VM;
 
 // VM runs the chunk and then responds...
@@ -25,6 +33,12 @@ void initVM(VM* vm);
 
 // frees a VM
 void freeVM(VM* vm);
+
+// pushes a Value to the stack
+void push(VM* vm, Value value);
+
+// pops a Value off the stack
+Value pop(VM* vm);
 
 // interprets a chunk of bytecode
 InterpretResult interpret(VM* vm, Chunk* chunk);
