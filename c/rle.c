@@ -21,6 +21,11 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
         rle -> lengths = GROW_ARRAY(int, rle -> lengths,
                                      0, rle -> capacity);
 
+        // rle -> values = NEW_GROW_ARRAY(int, rle -> values,
+        //    rle -> capacity);
+        // rle -> lengths = NEW_GROW_ARRAY(int, rle -> lengths,
+        //    rle -> capacity);
+
         rle -> values[0] = value;
         rle -> lengths[0] = 1;
         rle -> count++;
@@ -41,6 +46,11 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
             rle -> lengths = GROW_ARRAY(int, rle -> lengths,
                                        oldCapacity, rle -> capacity);
 
+            // rle -> values = NEW_GROW_ARRAY(int, rle -> values,
+            //    rle -> capacity);
+            // rle -> lengths = NEW_GROW_ARRAY(int, rle -> lengths,
+            //    rle -> capacity);
+
         }
         rle -> values[rle -> count] = value;
         rle -> lengths[rle -> count] = 1;
@@ -52,6 +62,10 @@ void writeRunLengthEncoding(RunLengthEncoding* rle, int value) {
 void freeRunLengthEncoding(RunLengthEncoding* rle) {
     FREE_ARRAY(int, rle -> values, rle -> capacity);
     FREE_ARRAY(int, rle -> lengths, rle -> capacity);
+
+    // NEW_FREE_ARRAY(rle -> values);
+    // NEW_FREE_ARRAY(rle -> lengths);
+
     initRunLengthEncoding(rle);
 }
 
