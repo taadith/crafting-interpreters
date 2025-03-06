@@ -5,6 +5,7 @@
 #include "value.h"
 
 #define STACK_MAX 256
+#define STARTING_STACK_MAX 256
 
 typedef struct {
     Chunk* chunk;
@@ -14,10 +15,10 @@ typedef struct {
     // ... look up an element in an array by index
     uint8_t* ip;
 
-    Value stack[STACK_MAX];
+    int count; // also serves as where the top of the stack is
+    int capacity;
 
-    // pts right above the top of the stack
-    Value* stackTop;
+    Value* dyn_stack;
 } VM;
 
 // VM runs the chunk and then responds...

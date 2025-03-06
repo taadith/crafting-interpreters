@@ -4,35 +4,41 @@
 #include "debug.h"
 #include "vm.h"
 
-// TODO: replace static VM with dynamic VM!
-// VM vm;
-
-static void resetStack(VM* vm) {
-    vm -> stackTop = vm -> stack;
-}
-
-
 // initializes a VM
 void initVM(VM* vm) {
-    resetStack(vm);
+    vm -> count = 0;
+    vm -> capacity = 0;
+    vm -> dyn_stack = NULL;
 }
 
 // frees a VM
 void freeVM(VM* vm) {
+    vm -> count = 0;
+    vm -> capacity = 0;
 
+    NEW_FREE_ARRAY(vm -> dyn_stack);
 }
 
 // pushes a Value to the stack
 void push(VM* vm, Value value) {
-    *(vm -> stackTop) = value;
-    vm -> stackTop++;
+    if (vm -> capacity < vm -> count + 2) {
+        int oldCapacity = vm -> capacity;
+        vm -> capacity = GROW_CAPACITY(oldCapacity);
+
+        vm -> dyn_stack = NEW_GROW_ARRAY(Value, vm -> dyn_stack,
+            vm -> capacity);
+    }
+
+    vm -> dyn_stack[vm -> count] = value;
+    vm -> count++;
 }
 
 // pops a Value off the stack
 Value pop(VM* vm) {
     // change where top of stack is
-    (vm -> stackTop)--;
-    return *(vm -> stackTop);
+    vm -> count--;
+
+    return vm -> dyn_stack[vm -> count];
 }
 
 // beating heart of VM..
@@ -63,9 +69,9 @@ static InterpretResult run(VM* vm) {
         // ... and disassembling instructions
         #ifdef DEBUG_TRACE_EXECUTION
         printf("\t\t");
-        for(Value* slot = vm -> stack; slot < vm -> stackTop; slot++) {
+        for(int i = 0; i < vm -> count; i++) {
             printf("[ ");
-            printValue(*slot);
+            printValue(vm -> dyn_stack[i]);
             printf(" ]");
         }
         printf("\n");
@@ -83,7 +89,7 @@ static InterpretResult run(VM* vm) {
             }
 
             // TODO: work on OP_CONSTANT_LONG
-            
+
             case OP_ADD: {
                 BINARY_OP(+);
                 break;
