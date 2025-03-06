@@ -10,21 +10,14 @@ int main(void) {
     Chunk chunk;
     initChunk(&chunk);
 
-    writeConstant(&chunk, 1.2, 123);
-    writeConstant(&chunk, 3.4, 123);
+    writeConstant(&chunk, 1.2, 1);
 
-    // results in 4.6
-    writeChunk(&chunk, OP_ADD, 123);
+    writeChunk(&chunk, OP_NEGATE, 1);
 
-    writeConstant(&chunk, 5.6, 123);
+    writeChunk(&chunk, OP_RETURN, 1);
 
-    // results in 23/28 ~= 6/7 ~= .85?
-    writeChunk(&chunk, OP_DIVIDE, 123);
+    disassembleChunk(&chunk, "negation chunk");
 
-    writeChunk(&chunk, OP_RETURN, 123);
-    
-    disassembleChunk(&chunk, "test chunk");
-    
     interpret(&vm, &chunk);
 
     freeVM(&vm);
