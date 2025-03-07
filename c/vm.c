@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #include "common.h"
-#include "compile.h"
+#include "compiler.h"
 #include "debug.h"
 #include "vm.h"
 

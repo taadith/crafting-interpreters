@@ -21,7 +21,7 @@ static void repl(void) {
     }
 }
 
-static void readFile(const char* path) {
+static char* readFile(const char* path) {
     FILE* file = fopen(path, "rb");
     if (file == NULL) {
         fprintf(stderr, "couldn't open file \"%s\"\n", path);
@@ -75,7 +75,8 @@ static void runFile(const char* path) {
 }
 
 int main(int argc, const char* argv[]) {
-    initVM();
+    VM* vm = NULL;
+    initVM(vm);
 
     if (argc == 1) {
         repl();
@@ -88,5 +89,8 @@ int main(int argc, const char* argv[]) {
 
         // command-line usage error
         exit(64);
+    }
+
+    freeVM(vm);
     return 0;
 }
