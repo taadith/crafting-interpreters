@@ -42,6 +42,6 @@ void push(VM* vm, Value value);
 Value pop(VM* vm);
 
 // interprets a chunk of bytecode
-InterpretResult interpret(VM* vm, Chunk* chunk);
+InterpretResult interpret(const char* src);
 
 #endif

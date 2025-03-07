@@ -1,27 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "common.h"
 #include "chunk.h"
 #include "debug.h"
 #include "vm.h"
 
-int main(void) {
-    VM vm;
-    initVM(&vm);
+static void repl(void) {
+    char line[1024];
+    for (;;) {
+        printf("> ");
 
-    Chunk chunk;
-    initChunk(&chunk);
+        if (!fgets(line, sizeof(line), stdin)) {
+            printf("\n");
+            break;
+        }
 
-    writeConstant(&chunk, 1.2, 1);
+        interpret(line);
+    }
+}
 
-    writeChunk(&chunk, OP_NEGATE, 1);
+static void readFile(const char* path) {
+    FILE* file = fopen(path, "rb");
+    if (file == NULL) {
+        fprintf(stderr, "couldn't open file \"%s\"\n", path);
 
-    writeChunk(&chunk, OP_RETURN, 1);
+        // generic input/output failure
+        exit(74);
+    }
 
-    disassembleChunk(&chunk, "negation chunk");
+    // go to end of file
+    fseek(file, 0L, SEEK_END);
 
-    interpret(&vm, &chunk);
+    // tells us what byte of file we are at...
+    // ... obviously the last byte
+    size_t fileSize = ftell(file);
 
-    freeVM(&vm);
-    freeChunk(&chunk);
+    // go back to the start of the file
+    rewind(file);
 
+    char* buffer = (char*) malloc(fileSize + 1);
+    if (buffer == NULL) {
+        fprintf(stderr, "not enough memory to read \"%s\"\n", path);
+        exit(74);
+    }
+
+    size_t bytesRead = fread(buffer, sizeof(char), fileSize, file);
+    if (bytesRead < fileSize) {
+        fprintf(stderr, "couldn't read file \"%s\"\n", path);
+        exit(74);
+    }
+
+    buffer[bytesRead] = '\0';
+
+    fclose(file);
+    return buffer;
+}
+
+static void runFile(const char* path) {
+    // read the file and exec the resulting...
+    // ... string of Lox src code
+    char* src = readFile(path);
+    InterpretResult result = interpret(src);
+    free(src);
+
+    // data formatted incorrectly/unexpectedly
+    if (result == INTERPRET_COMPILE_ERROR)
+        exit(65);
+
+    // unhandled error in S/W or logic
+    if (result == INTERPRET_RUNTIME_ERROR)
+        exit(70);
+}
+
+int main(int argc, const char* argv[]) {
+    initVM();
+
+    if (argc == 1) {
+        repl();
+    }
+    else if (argc == 2) {
+        runFile(argv[1]);
+    }
+    else {
+        fprintf(stderr, "usage: clox [path]\n");
+
+        // command-line usage error
+        exit(64);
     return 0;
 }
