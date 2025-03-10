@@ -5,13 +5,12 @@
 #include "scanner.h"
 
 void compile(const char* src) {
-    Scanner* scanner = NULL;
-    initScanner(scanner, src);
+    initScanner(src);
     int line = -1;
     for (;;) {
 
         // scans token and prints it
-        Token token = scanToken(scanner);
+        Token token = scanToken();
         if (token.line != line) {
             printf("%4d ", token.line);
             line = token.line;

@@ -29,4 +29,4 @@ $(RLE_TEST_OBJ_FILES): %.o: %.c
 	$(CC) $(C_FLAGS1) $^ -o $@
 
 clean:
-	rm -f ./chunk_test ./main ./rle_test ./*.o && clear
+	rm -f ./chunk_test ./main ./rle_test ./*.o

@@ -47,8 +47,8 @@ typedef struct {
     int line;
 } Scanner;
 
-void initScanner(Scanner* scanner, const char* src);
+void initScanner(const char* src);
 
-Token scanToken(Scanner* scanner);
+Token scanToken(void);
 
 #endif
