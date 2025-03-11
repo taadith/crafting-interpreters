@@ -5,63 +5,65 @@
 #include "debug.h"
 #include "vm.h"
 
+VM vm;
+
 // initializes a VM
-void initVM(VM* vm) {
-    vm -> count = 0;
-    vm -> capacity = 0;
-    vm -> dyn_stack = NULL;
+void initVM(void) {
+    vm.count = 0;
+    vm.capacity = 0;
+    vm.dyn_stack = NULL;
 }
 
 // frees a VM
-void freeVM(VM* vm) {
-    vm -> count = 0;
-    vm -> capacity = 0;
+void freeVM(void) {
+    vm.count = 0;
+    vm.capacity = 0;
 
-    NEW_FREE_ARRAY(vm -> dyn_stack);
+    NEW_FREE_ARRAY(vm.dyn_stack);
 }
 
 // pushes a Value to the stack
-void push(VM* vm, Value value) {
-    if (vm -> capacity < vm -> count + 2) {
-        int oldCapacity = vm -> capacity;
-        vm -> capacity = GROW_CAPACITY(oldCapacity);
+void push(Value value) {
+    if (vm.capacity < vm.count + 2) {
+        int oldCapacity = vm.capacity;
+        vm.capacity = GROW_CAPACITY(oldCapacity);
 
-        vm -> dyn_stack = NEW_GROW_ARRAY(Value, vm -> dyn_stack,
-            vm -> capacity);
+        vm.dyn_stack = NEW_GROW_ARRAY(Value, vm.dyn_stack,
+            vm.capacity);
     }
 
-    vm -> dyn_stack[vm -> count] = value;
-    vm -> count++;
+    vm.dyn_stack[vm.count] = value;
+    vm.count++;
 }
 
 // pops a Value off the stack
-Value pop(VM* vm) {
+Value pop(void) {
     // change where top of stack is
-    vm -> count--;
+    vm.count--;
 
-    return vm -> dyn_stack[vm -> count];
+    return vm.dyn_stack[vm.count];
 }
 
 // beating heart of VM..
 // ... interpreter spends ~90% of time here
-static InterpretResult run(VM* vm) {
+static InterpretResult run(void) {
     // reads byte currently pointed @ by `ip`...
     // ... and then advances `ip`
-    #define READ_BYTE() (*(vm -> ip)++)
+    #define READ_BYTE() (*(vm.ip)++)
 
     // reads next byte from bytecode, treating...
     // ... resulting # as an index, and looks up the...
     // ... corresponding Value in the chunk's constant table
-    #define READ_CONSTANT() (vm -> chunk -> \
+    #define READ_CONSTANT() (vm.chunk -> \
         constants.values[READ_BYTE()])
     
     // do-while format allows code to be placed...
     // ... w/in a block (in the same scope)...
     #define BINARY_OP(op) \
         do { \
-            double b = pop(vm); \
-            double a = pop(vm); \
-            push(vm, a op b); \
+            double b = pop(); \
+            double a = pop(); \
+            push(a op b); \
         } while (false)
 
     for(;;) {
@@ -70,22 +72,22 @@ static InterpretResult run(VM* vm) {
         // ... and disassembling instructions
         #ifdef DEBUG_TRACE_EXECUTION
         printf("\t\t");
-        for(int i = 0; i < vm -> count; i++) {
+        for(int i = 0; i < vm.count; i++) {
             printf("[ ");
-            printValue(vm -> dyn_stack[i]);
+            printValue(vm.dyn_stack[i]);
             printf(" ]");
         }
         printf("\n");
 
-        disassembleInstructionWithRLE(vm -> chunk,
-            (int) (vm -> ip - vm -> chunk -> code));
+        disassembleInstructionWithRLE(vm.chunk,
+            (int) (vm.ip - vm.chunk -> code));
         #endif
 
         uint8_t instruction;
         switch (instruction = READ_BYTE()) {
             case OP_CONSTANT: {
                 Value constant = READ_CONSTANT();
-                push(vm, constant);
+                push(constant);
                 break;
             }
 
@@ -112,12 +114,12 @@ static InterpretResult run(VM* vm) {
             }
 
             case OP_NEGATE: {
-                push(vm, -pop(vm));
+                push(-pop());
                 break;
             }
 
             case OP_RETURN: {
-                printValue(pop(vm));
+                printValue(pop());
                 printf("\n");
                 return INTERPRET_OK;
             }
@@ -130,6 +132,25 @@ static InterpretResult run(VM* vm) {
 }
 
 InterpretResult interpret(const char* src) {
-    compile(src);
-    return INTERPRET_OK;
+    // create a new empty chunk to...
+    // ... pass it over to the compiler
+    Chunk chunk;
+    initChunk(&chunk);
+
+    // found compile error
+    if (!compile(src, &chunk)) {
+        freeChunk(&chunk);
+        return INTERPRET_COMPILE_ERROR;
+    }
+
+    // send completed chunk to VM...
+    // ... for execution
+    vm.chunk = &chunk;
+    vm.ip = vm.chunk -> code;
+
+    InterpretResult res = run();
+
+    freeChunk(&chunk);
+
+    return res;
 }

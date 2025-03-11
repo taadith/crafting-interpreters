@@ -4,12 +4,12 @@
 #include "common.h"
 #include "scanner.h"
 
-Scanner* scanner;
+Scanner scanner;
 
 void initScanner(const char* src) {
-    scanner -> start = src;
-    scanner -> current = src;
-    scanner -> line = 0;
+    scanner.start = src;
+    scanner.current = src;
+    scanner.line = 0;
 }
 
 static bool isAlpha(char c) {
@@ -24,20 +24,20 @@ static bool isDigit(char c) {
 
 // checks for null-byte char
 static bool isAtEnd(void) {
-    return *(scanner -> current) == '\0';
+    return *(scanner.current) == '\0';
 }
 
 // reads next char from src code
 static char advance(void) {
-    scanner -> current++;
+    scanner.current++;
 
-    // same as *(scanner -> current - 1)
-    return scanner -> current[-1];
+    // same as *(scanner.current - 1)
+    return scanner.current[-1];
 }
 
 // returns current char w/out consumption
 static char peek(void) {
-    return *(scanner -> current);
+    return *(scanner.current);
 }
 
 // peeks at char past the current one
@@ -45,8 +45,8 @@ static char peekNext(void) {
     if (isAtEnd())
         return '\0';
 
-    // same as *(scanner -> current + 1)
-    return scanner -> current[1];
+    // same as *(scanner.current + 1)
+    return scanner.current[1];
 }
 
 static bool match(char expected) {
@@ -55,12 +55,12 @@ static bool match(char expected) {
         return false;
 
     // next char is something else
-    if (*(scanner -> current) != expected)
+    if (*(scanner.current) != expected)
         return false;
 
     // desired char was found so we advance...
     // ... and return true
-    scanner -> current++;
+    scanner.current++;
     return true;
 }
 
@@ -72,10 +72,10 @@ static Token makeToken(TokenType type) {
 
     // scanner's `start` and `current` ptrs used...
     // ... to capture the token's lexeme
-    token.start = scanner -> start;
-    token.length = (int)(scanner -> current - scanner -> start);
+    token.start = scanner.start;
+    token.length = (int)(scanner.current - scanner.start);
 
-    token.line = scanner -> line;
+    token.line = scanner.line;
 
     return token;
 }
@@ -89,7 +89,7 @@ static Token errorToken(const char* msg) {
     token.start = msg;
     token.length = (int)strlen(msg);
 
-    token.line = scanner -> line;
+    token.line = scanner.line;
 
     return token;
 }
@@ -107,7 +107,7 @@ static void skipWhitespace(void) {
                 break;
 
             case '\n':
-                scanner -> line++;
+                scanner.line++;
                 advance();
                 break;
 
@@ -129,8 +129,8 @@ static void skipWhitespace(void) {
 
 static TokenType checkKeyword(int start, int len,
         const char* rest, TokenType type) {
-    if (scanner -> current - scanner -> start == start + len &&
-            memcmp(scanner -> start + start, rest, len) == 0) {
+    if (scanner.current - scanner.start == start + len &&
+            memcmp(scanner.start + start, rest, len) == 0) {
         return type;
     }
 
@@ -139,7 +139,7 @@ static TokenType checkKeyword(int start, int len,
 }
 
 static TokenType identifierType(void) {
-    switch(scanner -> start[0]) {
+    switch(scanner.start[0]) {
         case 'a':
             return checkKeyword(1, 2, "nd", TOKEN_AND);
         case 'c':
@@ -147,8 +147,8 @@ static TokenType identifierType(void) {
         case 'e':
             return checkKeyword(1, 3, "lse", TOKEN_ELSE);
         case 'f':
-            if (scanner -> current - scanner -> start > 1) {
-                switch (scanner -> start[1]) {
+            if (scanner.current - scanner.start > 1) {
+                switch (scanner.start[1]) {
                     case 'a':
                         return checkKeyword(2, 3, "lse", TOKEN_FALSE);
                     case 'o':
@@ -171,8 +171,8 @@ static TokenType identifierType(void) {
         case 's':
             return checkKeyword(1, 4, "uper", TOKEN_SUPER);
         case 't':
-            if (scanner -> current - scanner -> start - 1) {
-                switch (scanner -> start[1]) {
+            if (scanner.current - scanner.start - 1) {
+                switch (scanner.start[1]) {
                     case 'h':
                         return checkKeyword(2, 2, "is", TOKEN_THIS);
                     case 'r':
@@ -217,7 +217,7 @@ static Token string(void) {
     // consume chars until closing quote
     while(peek() != '"' && !isAtEnd()) {
         if (peek() == '\n')
-            scanner -> line++;
+            scanner.line++;
         advance();
     }
 
@@ -234,7 +234,7 @@ Token scanToken(void) {
     // advances the scanner past any leading whitespace
     skipWhitespace();
 
-    scanner -> start = scanner -> current;
+    scanner.start = scanner.current;
 
     if (isAtEnd())
         return makeToken(TOKEN_EOF);

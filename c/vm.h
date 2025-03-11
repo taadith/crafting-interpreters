@@ -30,16 +30,16 @@ typedef enum {
 } InterpretResult;
 
 // initializes a VM
-void initVM(VM* vm);
+void initVM(void);
 
 // frees a VM
-void freeVM(VM* vm);
+void freeVM(void);
 
 // pushes a Value to the stack
-void push(VM* vm, Value value);
+void push(Value value);
 
 // pops a Value off the stack
-Value pop(VM* vm);
+Value pop(void);
 
 // interprets a chunk of bytecode
 InterpretResult interpret(const char* src);
