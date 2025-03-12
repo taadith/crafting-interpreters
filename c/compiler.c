@@ -4,15 +4,25 @@
 #include "compiler.h"
 #include "scanner.h"
 
-bool compile(Chunk* chunk, const char* src) {
+void compile(const char* src) {
     initScanner(src);
+    int line = -1;
+    for (;;) {
 
-    // "'primes the pump' on the scanner"
-    advance();
+        // scans token and prints it
+        Token token = scanToken();
+        if (token.line != line) {
+            printf("%4d ", token.line);
+            line = token.line;
+        }
+        else {
+            printf("\t| ");
+        }
 
-    // parse a single expression
-    expression();
-
-    // check for the sentinel EOF token
-    consume(TOKEN_EOF, "expected end of expression");
+        printf("%2d '%.*s'\n", token.type, token.length, token.start);
+        
+        // stops at EOF token or an error
+        if (token.type == TOKEN_EOF)
+            break;
+    }
 }
