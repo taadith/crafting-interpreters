@@ -16,6 +16,12 @@ typedef struct {
 
 Parser parser;
 
+Chunk* compilingChunk;
+
+static Chunk* currentChunk() {
+    return compilingChunk;
+}
+
 static void errorAt(Token* token, const char* msg) {
     // already in panic mode, so we suppress any...
     // ... other detected errors...
@@ -81,8 +87,29 @@ static void consume(TokenType type, const char* msg) {
     errorAtCurrent(msg);
 }
 
+// appends a single byte to the chunk
+static void emitByte(uint8_t byte) {
+    writeChunk(currentChunk(), byte, parser.previous.line);
+}
+
+static void emitBytes(uint8_t byte1, uint8_t byte2) {
+    emitByte(byte1);
+    emitByte(byte2);
+}
+
+static void emitReturn() {
+    emitByte(OP_RETURN);
+}
+
+static void endCompiler() {
+    emitReturn();
+}
+
 bool compile(const char* src, Chunk* chunk) {
     initScanner(src);
+
+    // initalizing module variable attached to Chunk of code
+    compilingChunk = chunk;
 
     // initializing parser fields
     parser.hadError = false;
@@ -96,6 +123,8 @@ bool compile(const char* src, Chunk* chunk) {
 
     // check for sentinel EOF token
     consume(TOKEN_EOF, "expected end of expression");
+
+    endCompiler();
 
     return !parser.hadError;
 }
