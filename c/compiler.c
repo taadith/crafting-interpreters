@@ -14,6 +14,22 @@ typedef struct {
     bool panicMode;
 } Parser;
 
+// Lox's precedence lvls in order from lowest...
+// ... to highest
+typedef enum {
+    PREC_NONE,
+    PREC_ASSIGNMENT,    // =
+    PREC_OR,            // or
+    PREC_AND,           // and
+    PREC_EQUALITY,      // == !=
+    PREC_COMPARISON,    // < > <= >=
+    PREC_TERM,          // + -
+    PREC_FACTOR,        // * /
+    PREC_UNARY,         // ! -
+    PREC_CALL,          // . ()
+    PREC_PRIMARY
+} Precedence;
+
 Parser parser;
 
 Chunk* compilingChunk;
@@ -126,6 +142,16 @@ static void endCompiler() {
     emitReturn();
 }
 
+// assume the initial '(' has been consumed
+static void grouping() {
+    // recursively call back into `expression()`...
+    // ... to compile the expr between the "()"
+    expression();
+
+    // parse the closing ')'
+    consume(TOKEN_RIGHT_PAREN, "expected ')' after expression");
+}
+
 static void number() {
     // take number literal and use C std library...
     // ... to convert it a double value
@@ -135,8 +161,32 @@ static void number() {
     emitConstant(value);
 }
 
-static void expression() {
+static void unary() {
+    TokenType operatorType = parser.previous.type;
+
+    // compile the operand
+    parsePrecedence(PREC_UNARY);
+
+    // emit the operator instruction
+    switch (operatorType) {
+        case TOKEN_MINUS:
+            emitByte(OP_NEGATE);
+            break;
+
+        // in theory, unreachable
+        default:
+            return;
+    }
+}
+
+// parsers any expression at the given precedence...
+// ... lvl or higher
+static void parsePrecedence(Precedence precedence) {
     // what goes here?
+}
+
+static void expression() {
+    parsePrecedence(PREC_ASSIGNMENT);
 }
 
 bool compile(const char* src, Chunk* chunk) {
