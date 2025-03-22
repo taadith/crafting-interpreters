@@ -92,6 +92,11 @@ static InterpretResult run(void) {
             }
 
             // TODO: work on OP_CONSTANT_LONG
+            case OP_CONSTANT_LONG: {
+                int first_byte_index = READ_BYTE();
+                int second_byte_index = READ_BYTE();
+                int third_byte_index = READ_BYTE();
+            }
 
             case OP_ADD: {
                 BINARY_OP(+);
@@ -132,25 +137,24 @@ static InterpretResult run(void) {
 }
 
 InterpretResult interpret(const char* src) {
-    // create a new empty chunk to...
-    // ... pass it over to the compiler
+    // create an empty chunk that's passed...
+    // ... over to the compiler
     Chunk chunk;
     initChunk(&chunk);
 
-    // found compile error
+    // compiler fills up chunk with bytecode...
+    // ... unless there are compile errors
     if (!compile(src, &chunk)) {
         freeChunk(&chunk);
         return INTERPRET_COMPILE_ERROR;
     }
 
-    // send completed chunk to VM...
-    // ... for execution
     vm.chunk = &chunk;
     vm.ip = vm.chunk -> code;
 
     InterpretResult res = run();
 
     freeChunk(&chunk);
-
+    
     return res;
 }
