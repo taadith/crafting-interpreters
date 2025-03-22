@@ -1,9 +1,0 @@
-var anya = "cute";
-
-var a = 0;
-while (a != 5) {
-    print "anya is cute x " + a;
-    a = a + 1;
-}
-
-print "end of code";

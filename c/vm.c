@@ -91,11 +91,19 @@ static InterpretResult run(void) {
                 break;
             }
 
-            // TODO: work on OP_CONSTANT_LONG
             case OP_CONSTANT_LONG: {
                 int first_byte_index = READ_BYTE();
                 int second_byte_index = READ_BYTE();
                 int third_byte_index = READ_BYTE();
+                
+                int constant_index = (first_byte_index << 16) |
+                         (second_byte_index << 8) |
+                         (third_byte_index);
+
+                Value constant = vm.chunk -> 
+                    constants.values[constant_index];
+                push(constant);
+                break;
             }
 
             case OP_ADD: {
