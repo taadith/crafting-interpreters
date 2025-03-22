@@ -101,8 +101,42 @@ static void emitReturn() {
     emitByte(OP_RETURN);
 }
 
+// TODO: be able to return "uint24_t"
+static uint8_t makeConstant(Value value) {
+    // adds the given value to the end of the chunk's...
+    // ... constant table and returns its index
+    int constant_index = addConstant(currentChunk(), value);
+
+    // TODO: change to "UINT24_MAX"
+    // handles bounds checking for constant index...
+    // ... can only handle up to 256 constants in a chunk
+    if (constant_index > UINT8_MAX) {
+        error("too many constants in one chunk");
+        return 0;
+    }
+
+    return (uint8_t)constant;
+}
+
+static void emitConstant(Value value) {
+    emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
 static void endCompiler() {
     emitReturn();
+}
+
+static void number() {
+    // take number literal and use C std library...
+    // ... to convert it a double value
+    double value = strtod(parser.previous.start, NULL);
+
+    // generate code to load the value
+    emitConstant(value);
+}
+
+static void expression() {
+    // what goes here?
 }
 
 bool compile(const char* src, Chunk* chunk) {
