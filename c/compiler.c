@@ -34,7 +34,7 @@ Parser parser;
 
 Chunk* compilingChunk;
 
-static Chunk* currentChunk() {
+static Chunk* currentChunk(void) {
     return compilingChunk;
 }
 
@@ -73,7 +73,7 @@ static void errorAtCurrent(const char* msg) {
     errorAt(&parser.previous, msg);
 }
 
-static void advance() {
+static void advance(void) {
     // steps fwd thru the token stream
     parser.previous = parser.current;
 
@@ -113,7 +113,7 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte2);
 }
 
-static void emitReturn() {
+static void emitReturn(void) {
     emitByte(OP_RETURN);
 }
 
@@ -138,12 +138,41 @@ static void emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
 }
 
-static void endCompiler() {
+static void endCompiler(void) {
     emitReturn();
 }
 
+static void binary() {
+    // grabbing the precedence of the operator...
+    // ... to get the rest of the right operand
+    TokenType operatorType = parser.previous.type;
+    ParseRule* rule = getRule(operatorType);
+    parsePrecedence((Precedence)(rule -> precedence + 1);
+
+    // emites the bytecode instruction that...
+    // ... performs the binary operation
+    switch (operatorType) {
+        case TOKEN_PLUS:
+            emitByte(OP_ADD);
+            break;
+        case TOKEN_MINUS:
+            emitByte(OP_SUBTRACT);
+            break;
+        case TOKEN_STAR:
+            emitByte(OP_MULTIPLY);
+            break;
+        case TOKEN_SLASH:
+            emitByte(OP_DIVIDE);
+            break;
+
+        // in theory, unreachable
+        default:
+            return;
+    }
+}
+
 // assume the initial '(' has been consumed
-static void grouping() {
+static void grouping(void) {
     // recursively call back into `expression()`...
     // ... to compile the expr between the "()"
     expression();
@@ -152,7 +181,7 @@ static void grouping() {
     consume(TOKEN_RIGHT_PAREN, "expected ')' after expression");
 }
 
-static void number() {
+static void number(void) {
     // take number literal and use C std library...
     // ... to convert it a double value
     double value = strtod(parser.previous.start, NULL);
@@ -161,7 +190,7 @@ static void number() {
     emitConstant(value);
 }
 
-static void unary() {
+static void unary(void) {
     TokenType operatorType = parser.previous.type;
 
     // compile the operand
@@ -185,7 +214,7 @@ static void parsePrecedence(Precedence precedence) {
     // what goes here?
 }
 
-static void expression() {
+static void expression(void) {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
