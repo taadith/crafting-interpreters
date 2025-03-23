@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -6,6 +7,26 @@
 #include "vm.h"
 
 VM vm;
+
+// example of a variadic function
+static void runtimeError(const char* format,...) {
+    // `args` lets us pass an arbitrary...
+    // ... # of args to runTime error
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    va_end(args);
+
+    fputs("\n", stderr);
+
+    size_t instruction = vm.ip - vm.chunk -> code - 1;
+    // int line = vm.chunk -> lines[instruction];
+    int line = getLine(vm.chunk, instruction);
+    fprintf(stderr, "[line %d] in script\n", line);
+    
+    // "resetting" the stack
+    vm.count = 0;
+}
 
 // initializes a VM
 void initVM(void) {
@@ -44,6 +65,11 @@ Value pop(void) {
     return vm.dyn_stack[vm.count];
 }
 
+// returns a Value from the stack, without popping
+Value peek(int distance) {
+    return vm.dyn_stack[vm.count - distance - 1];
+}
+
 // beating heart of VM..
 // ... interpreter spends ~90% of time here
 static InterpretResult run(void) {
@@ -56,14 +82,19 @@ static InterpretResult run(void) {
     // ... corresponding Value in the chunk's constant table
     #define READ_CONSTANT() (vm.chunk -> \
         constants.values[READ_BYTE()])
-    
-    // do-while format allows code to be placed...
-    // ... w/in a block (in the same scope)...
-    #define BINARY_OP(op) \
+
+    // checks that both operands are numbers, then we pop...
+    // ... and unwrap them; then we apply the given operator...
+    // ... wrap the result, and push it back on the stack
+    #define BINARY_OP(valueType, op) \
         do { \
-            double b = pop(); \
-            double a = pop(); \
-            push(a op b); \
+            if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) { \
+                runtimeError("operands must be numbers"); \
+                return INTERPRET_RUNTIME_ERROR; \
+            } \
+            double b = AS_NUMBER(pop()); \
+            double a = AS_NUMBER(pop()); \
+            push(valueType(a op b)); \
         } while (false)
 
     for(;;) {
@@ -107,27 +138,38 @@ static InterpretResult run(void) {
             }
 
             case OP_ADD: {
-                BINARY_OP(+);
+                BINARY_OP(NUMBER_VAL, +);
                 break;
             }
 
             case OP_SUBTRACT: {
-                BINARY_OP(-);
+                BINARY_OP(NUMBER_VAL, -);
                 break;
             }
 
             case OP_MULTIPLY: {
-                BINARY_OP(*);
+                BINARY_OP(NUMBER_VAL, *);
                 break;
             }
 
             case OP_DIVIDE: {
-                BINARY_OP(/);
+                BINARY_OP(NUMBER_VAL, /);
                 break;
             }
 
             case OP_NEGATE: {
-                push(-pop());
+                // if the Value on top of the stack...
+                // ... isn't a number, then we we report...
+                // ... it as a runtime error and stop the...
+                // ... interpreter
+                if (!IS_NUMBER(peek(0))) {
+                    runtimeError("operand must be a number");
+                    return INTERPRET_RUNTIME_ERROR;
+                }
+                
+                // pop the operand, unwrap it, negate it,...
+                // ... wrap the result, and then push it
+                push(NUMBER_VAL(-AS_NUMBER(pop())));
                 break;
             }
 

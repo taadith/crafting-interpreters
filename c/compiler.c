@@ -214,8 +214,10 @@ static void number(void) {
     // ... to convert it a double value
     double value = strtod(parser.previous.start, NULL);
 
-    // generate code to load the value
-    emitConstant(value);
+    // generate code to load the value...
+    // ... and wrap in a Value before storing...
+    // ... it in the constant table
+    emitConstant(NUMBER_VAL(value));
 }
 
 static void unary(void) {
