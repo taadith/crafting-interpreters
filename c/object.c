@@ -32,6 +32,10 @@ static ObjString* allocateString(char* chars, int length) {
     return string;
 }
 
+ObjString* takeString(char* chars, int length) {
+    return allocateString(chars, length);
+}
+
 ObjString* copyString(const char* chars, int length) {
     // allocate a new array on the heap big enough...
     // ... for the string's chars and a trailing...
@@ -48,4 +52,12 @@ ObjString* copyString(const char* chars, int length) {
 
     // construct the string
     return allocateString(heapChars, length);
+}
+
+void printObject(Value value) {
+    switch (OBJ_TYPE(value)) {
+        case OBJ_STRING:
+            printf("%s", AS_CSTRING(value));
+            break;
+    }
 }

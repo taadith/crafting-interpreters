@@ -2,7 +2,7 @@ CC := clang
 C_FLAGS1 := -Wall -Wextra -Wpedantic -g -c
 C_FLAGS2 := -g
 
-MAIN_OBJ_FILES := chunk.o compiler.o debug.o main.o memory.o rle.o scanner.o value.o vm.o
+MAIN_OBJ_FILES := chunk.o compiler.o debug.o main.o memory.o object.o rle.o scanner.o value.o vm.o
 CHUNK_TEST_OBJ_FILES := chunk.o chunk_test.o debug.o memory.o rle.o value.o
 RLE_TEST_OBJ_FILES := memory.o rle.o rle_test.o
 

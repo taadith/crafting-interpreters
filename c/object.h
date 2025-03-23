@@ -29,7 +29,14 @@ struct ObjString {
     char* chars;
 };
 
+// just take the string from where it was obtained from
+ObjString* takeString(char* chars, int length);
+
+// copying string from another location and then...
+// ... allocating them
 ObjString* copyString(const char* chars, int length);
+
+void printObject(Value value);
 
 // helper function for checking object type
 static inline bool isObjType(Value value, ObjType type) {
