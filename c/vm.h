@@ -19,6 +19,7 @@ typedef struct {
     int capacity;
 
     Value* dyn_stack;
+    Obj* objects;
 } VM;
 
 // VM runs the chunk and then responds...
@@ -28,6 +29,8 @@ typedef enum {
     INTERPRET_COMPILE_ERROR,
     INTERPRET_RUNTIME_ERROR
 } InterpretResult;
+
+extern VM vm;
 
 // initializes a VM
 void initVM(void);

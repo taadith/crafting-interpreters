@@ -28,5 +28,7 @@ $(CHUNK_TEST_OBJ_FILES): %.o: %.c
 $(RLE_TEST_OBJ_FILES): %.o: %.c
 	$(CC) $(C_FLAGS1) $^ -o $@
 
+# helper commands
+
 clean:
 	rm -f ./chunk_test ./main ./rle_test ./*.o

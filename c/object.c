@@ -17,6 +17,11 @@ static Obj* allocateObject(size_t size, ObjType type) {
     // field is initialized
     object -> type = type;
 
+    // insert new Obj at the head...
+    // ... or the tail depending on where you're looking
+    object -> next = vm.objects;
+    vm.objects = object;
+
     return object;
 }
 

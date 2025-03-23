@@ -36,10 +36,13 @@ void initVM(void) {
     vm.count = 0;
     vm.capacity = 0;
     vm.dyn_stack = NULL;
+    vm.objects = NULL;
 }
 
 // frees a VM
 void freeVM(void) {
+    freeObjects();
+
     vm.count = 0;
     vm.capacity = 0;
 
