@@ -70,6 +70,11 @@ Value peek(int distance) {
     return vm.dyn_stack[vm.count - distance - 1];
 }
 
+// nil, false -> falsey, everything else is true
+static bool isFalsey(Value value) {
+    return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
+
 // beating heart of VM..
 // ... interpreter spends ~90% of time here
 static InterpretResult run(void) {
@@ -137,6 +142,33 @@ static InterpretResult run(void) {
                 break;
             }
 
+            case OP_NIL:
+                push(NIL_VAL);
+                break;
+
+            case OP_TRUE:
+                push(BOOL_VAL(true));
+                break;
+
+            case OP_FALSE:
+                push(BOOL_VAL(false));
+                break;
+
+            case OP_EQUAL: {
+                Value b = pop();
+                Value a = pop();
+                push(BOOL_VAL(valuesEqual(a, b)));
+                break;
+            }
+
+            case OP_GREATER:
+                BINARY_OP(BOOL_VAL, >);
+                break;
+
+            case OP_LESS:
+                BINARY_OP(BOOL_VAL, <);
+                break;
+
             case OP_ADD: {
                 BINARY_OP(NUMBER_VAL, +);
                 break;
@@ -156,6 +188,10 @@ static InterpretResult run(void) {
                 BINARY_OP(NUMBER_VAL, /);
                 break;
             }
+
+            case OP_NOT:
+                push(BOOL_VAL(isFalsey(pop())));
+                break;
 
             case OP_NEGATE: {
                 // if the Value on top of the stack...
